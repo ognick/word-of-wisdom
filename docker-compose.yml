@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  server:
+    image: wow-server-app
+    build:
+      context: .
+      dockerfile: deploy/server/Dockerfile
+    environment:
+      - CONF_LOG_LEVEL=info
+      - CONF_CHALLENGE_COMPLEXITY=8
+    ports:
+      - 8080:8080
+  client:
+    image: wow-client-app
+    deploy:
+      mode: replicated
+      replicas: 10
+    build:
+      context: .
+      dockerfile: deploy/client/Dockerfile
+    environment:
+      - CONF_HTTP_ADDRESS=server:8080
+      - CONF_LOG_LEVEL=info
+    depends_on:
+      - server

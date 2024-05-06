@@ -41,7 +41,7 @@ func (srv *Server) Run(ctx context.Context) error {
 		}
 	}()
 
-	srv.log.Infof("srv was starded on %v", listener.Addr())
+	srv.log.Infof("TCP server was starded on %v", listener.Addr())
 
 	connections := make(chan net.Conn)
 	go func() {
@@ -62,6 +62,8 @@ func (srv *Server) Run(ctx context.Context) error {
 	for conn := range connections {
 		go srv.handler(conn)
 	}
+
+	srv.log.Infof("TCP server was stopped")
 
 	return nil
 }

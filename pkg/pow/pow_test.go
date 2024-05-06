@@ -11,6 +11,30 @@ const (
 	maxComplexity = 10
 )
 
+func Test_Positive(t *testing.T) {
+	challenge, err := Generate(5)
+	require.NoError(t, err)
+
+	solution, err := Solve(challenge)
+	require.NoError(t, err)
+
+	mask := MakeValidationMask(GetComplexity(challenge))
+	ok := Validate(challenge, solution, mask)
+	require.True(t, ok)
+}
+
+func Test_BadSolution(t *testing.T) {
+	challenge, err := Generate(5)
+	require.NoError(t, err)
+	mask := MakeValidationMask(GetComplexity(challenge))
+
+	ok := Validate(challenge, make([]byte, SolutionLen), mask)
+	require.False(t, ok)
+
+	ok = Validate(challenge, make([]byte, 0), mask)
+	require.False(t, ok)
+}
+
 func Test_Generate_Solve_Validate(t *testing.T) {
 	for complexity := byte(1); complexity <= maxComplexity; complexity++ {
 		t.Run(fmt.Sprintf("complexity_%d", complexity), func(t *testing.T) {

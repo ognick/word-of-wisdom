@@ -9,7 +9,8 @@ type ChallengeService struct {
 
 func NewChallengeService(complexity byte) *ChallengeService {
 	return &ChallengeService{
-		mask: pow.MakeValidationMask(complexity),
+		complexity: complexity,
+		mask:       pow.MakeValidationMask(complexity),
 	}
 }
 

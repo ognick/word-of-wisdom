@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: deploy/client/Dockerfile
     environment:
-      - CONF_HTTP_ADDRESS=server:8080
+      - CONF_TCP_ADDRESS=server:8080
       - CONF_LOG_LEVEL=info
     depends_on:
       - server

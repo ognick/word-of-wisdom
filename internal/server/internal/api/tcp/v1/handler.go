@@ -80,6 +80,7 @@ func (h *Handler) Handle(conn net.Conn) {
 
 	if !h.challengeService.ValidateSolution(challenge, solution[:n]) {
 		h.log.Debugf("client couldn't proof of work")
+		return
 	}
 
 	wisdom := h.wisdomService.GetWisdom()

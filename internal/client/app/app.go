@@ -3,11 +3,15 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
+	net "net/http"
 	"time"
 
-	"word_of_wisdom/internal/client/api/tcp/v1"
-	"word_of_wisdom/internal/client/service"
-	"word_of_wisdom/internal/config"
+	httpV1 "word_of_wisdom/internal/client/internal/api/http/v1"
+	tcpV1 "word_of_wisdom/internal/client/internal/api/tcp/v1"
+	"word_of_wisdom/internal/client/internal/service"
+	"word_of_wisdom/internal/common/config"
+	"word_of_wisdom/pkg/http"
 	"word_of_wisdom/pkg/logger"
 	"word_of_wisdom/pkg/shutdown"
 	"word_of_wisdom/pkg/tcp"
@@ -26,22 +30,62 @@ func Run() {
 	// Services
 	solverService := service.NewSolverService()
 
-	// Handler
-	handler := v1.NewHandler(solverService)
+	// TCP Handler
+	tcpHandler := tcpV1.NewHandler(solverService)
+
+	// HTTP Handler
+	httpHandler := httpV1.NewHandler(solverService)
 
 	// TCP Client
-	client := tcp.NewClient(cfg.HTTPAddress, handler.Handle)
+	tcpClient := tcp.NewClient(cfg.TCPAddress, tcpHandler.Handle)
 
-	// Run
+	// HTTP Client
+	var httpClient *http.Client
+	httpClient = http.NewClient(
+		cfg.HTTPAddress+"/v1/wisdom",
+		"GET",
+		func(ctx context.Context, status int, header net.Header, body []byte) error {
+			switch status {
+			case net.StatusTooManyRequests:
+				if err := httpHandler.HandleChallenge(header); err != nil {
+					return err
+				}
+				return httpClient.Request(ctx, header, nil)
+			case net.StatusOK:
+				log.Infof("%s", body)
+				return nil
+			}
+
+			return fmt.Errorf("unknown status:%d body:%s", status, body)
+		},
+	)
+
 	runner, ctx := shutdown.CreateRunnerWithGracefulContext()
+	// Running tcp
 	runner.Go(func() error {
 		for {
-			if err := client.Connect(ctx); err != nil {
+			if err := tcpClient.Connect(ctx); err != nil {
 				if errors.Is(err, context.Canceled) {
 					return nil
 				}
 				log.Errorf("failed to connect: %v", err)
 				<-time.After(cfg.ChallengeTimeout)
+			}
+		}
+	})
+
+	// Running http
+	runner.Go(func() error {
+		for {
+			if err := httpClient.Request(ctx, nil, nil); err != nil {
+				if err != nil {
+					log.Errorf("failed to connect: %v", err)
+				}
+				select {
+				case <-time.After(cfg.ChallengeTimeout):
+				case <-ctx.Done():
+					return ctx.Err()
+				}
 			}
 		}
 	})

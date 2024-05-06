@@ -11,6 +11,7 @@ import (
 	tcpV1 "word_of_wisdom/internal/client/internal/api/tcp/v1"
 	"word_of_wisdom/internal/client/internal/service"
 	"word_of_wisdom/internal/common/config"
+	"word_of_wisdom/internal/common/constants"
 	"word_of_wisdom/pkg/http"
 	"word_of_wisdom/pkg/logger"
 	"word_of_wisdom/pkg/shutdown"
@@ -45,18 +46,20 @@ func Run() {
 		cfg.HTTPAddress+"/v1/wisdom",
 		"GET",
 		func(ctx context.Context, status int, header net.Header, body []byte) error {
-			switch status {
-			case net.StatusTooManyRequests:
-				if err := httpHandler.HandleChallenge(header); err != nil {
-					return err
-				}
-				return httpClient.Request(ctx, header, nil)
-			case net.StatusOK:
-				log.Infof("%s", body)
+			if status != net.StatusOK {
+				return fmt.Errorf("unknown status:%d body:%s", status, body)
+			}
+
+			if header.Get(constants.ChallengeHeader) == "" {
+				log.Infof("wisdom:%s", body)
 				return nil
 			}
 
-			return fmt.Errorf("unknown status:%d body:%s", status, body)
+			if err := httpHandler.HandleChallenge(header); err != nil {
+				return err
+			}
+
+			return httpClient.Request(ctx, header, nil)
 		},
 	)
 

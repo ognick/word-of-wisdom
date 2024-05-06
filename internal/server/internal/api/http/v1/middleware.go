@@ -32,7 +32,7 @@ func ProofOfWorkLimiter(challengeService ChallengeService) gin.HandlerFunc {
 
 		base64Challenge := base64.StdEncoding.EncodeToString(challenge)
 		c.Header(constants.ChallengeHeader, base64Challenge)
-		c.AbortWithStatus(http.StatusTooManyRequests)
+		c.AbortWithStatus(http.StatusOK)
 	}
 
 	return func(c *gin.Context) {
@@ -49,13 +49,13 @@ func ProofOfWorkLimiter(challengeService ChallengeService) gin.HandlerFunc {
 			return
 		}
 
-		challenge, err := base64.StdEncoding.DecodeString(base64Solution)
+		solution, err := base64.StdEncoding.DecodeString(base64Solution)
 		if err != nil {
 			generateChallenge(c, addr)
 			return
 		}
 
-		if !challengeService.ValidateSolution(challenge, []byte(challenge)) {
+		if !challengeService.ValidateSolution(challenge, solution) {
 			generateChallenge(c, addr)
 			return
 		}

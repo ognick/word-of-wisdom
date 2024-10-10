@@ -5,10 +5,12 @@ import (
 	httpV1 "word_of_wisdom/internal/server/internal/api/http/v1"
 	tcpV1 "word_of_wisdom/internal/server/internal/api/tcp/v1"
 	privateconfig "word_of_wisdom/internal/server/internal/config"
-	"word_of_wisdom/internal/server/internal/repository"
-	"word_of_wisdom/internal/server/internal/service"
+	"word_of_wisdom/internal/server/internal/services/challenge"
+	"word_of_wisdom/internal/server/internal/services/challenge/repository"
+	"word_of_wisdom/internal/server/internal/services/wisdom"
 	"word_of_wisdom/pkg/http"
 	"word_of_wisdom/pkg/logger"
+	"word_of_wisdom/pkg/pow"
 	"word_of_wisdom/pkg/shutdown"
 	"word_of_wisdom/pkg/tcp"
 )
@@ -28,12 +30,17 @@ func Run() {
 		log.Fatalf("failed to init private config: %v", err)
 	}
 
-	//Repositories
+	// Proof of concept generator
+	proofOfWorkGenerator := pow.NewGenerator(privateCfg.ChallengeComplexity)
+
+	// Repositories
 	wisdomRepo := repository.NewWisdomRepository()
 
 	// Services
-	challengeService := service.NewChallengeService(privateCfg.ChallengeComplexity)
-	wisdomService := service.NewWisdomService(wisdomRepo)
+	challengeService := challenge.NewService(proofOfWorkGenerator)
+	wisdomService := wisdom.NewService(wisdom.DepRepos{
+		Wisdom: wisdomRepo,
+	})
 
 	// TCP Handlers
 	tcpHandler := tcpV1.NewHandler(

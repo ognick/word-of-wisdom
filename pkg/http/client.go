@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 
@@ -53,13 +52,11 @@ func (c *Client) Request(
 		return fmt.Errorf("error creating request: %w", err)
 	}
 
-	if header != nil {
-		for key, values := range header {
-			for _, v := range values {
-				req.Header.Add(key, v)
-			}
-
+	for key, values := range header {
+		for _, v := range values {
+			req.Header.Add(key, v)
 		}
+
 	}
 
 	resp, err := c.client.Do(req)
@@ -68,7 +65,7 @@ func (c *Client) Request(
 	}
 	defer resp.Body.Close()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("error reading response:%w", err)
 	}

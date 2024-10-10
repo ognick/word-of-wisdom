@@ -9,11 +9,12 @@ import (
 
 	httpV1 "word_of_wisdom/internal/client/internal/api/http/v1"
 	tcpV1 "word_of_wisdom/internal/client/internal/api/tcp/v1"
-	"word_of_wisdom/internal/client/internal/service"
+	"word_of_wisdom/internal/client/internal/services/solver"
 	"word_of_wisdom/internal/common/config"
 	"word_of_wisdom/internal/common/constants"
 	"word_of_wisdom/pkg/http"
 	"word_of_wisdom/pkg/logger"
+	"word_of_wisdom/pkg/pow"
 	"word_of_wisdom/pkg/shutdown"
 	"word_of_wisdom/pkg/tcp"
 )
@@ -28,8 +29,11 @@ func Run() {
 		log.Fatalf("failed to set log level: %v", err)
 	}
 
+	// Proof of concept solver
+	proofOfWorkSolver := pow.NewSolver()
+
 	// Services
-	solverService := service.NewSolverService()
+	solverService := solver.NewService(proofOfWorkSolver)
 
 	// TCP Handler
 	tcpHandler := tcpV1.NewHandler(solverService)

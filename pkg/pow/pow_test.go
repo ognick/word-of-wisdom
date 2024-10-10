@@ -12,51 +12,55 @@ const (
 )
 
 func Test_Positive(t *testing.T) {
-	challenge, err := Generate(5)
+	generator := NewGenerator(5)
+	challenge, err := generator.Generate()
 	require.NoError(t, err)
 
-	solution, err := Solve(challenge)
+	solver := NewSolver()
+	solution, err := solver.Solve(challenge)
 	require.NoError(t, err)
 
-	mask := MakeValidationMask(GetComplexity(challenge))
-	ok := Validate(challenge, solution, mask)
+	ok := generator.Validate(challenge, solution)
 	require.True(t, ok)
 }
 
 func Test_BadSolution(t *testing.T) {
-	challenge, err := Generate(5)
+	generator := NewGenerator(5)
+	challenge, err := generator.Generate()
 	require.NoError(t, err)
-	mask := MakeValidationMask(GetComplexity(challenge))
 
-	ok := Validate(challenge, make([]byte, SolutionLen), mask)
+	ok := generator.Validate(challenge, make([]byte, SolutionLen))
 	require.False(t, ok)
 
-	ok = Validate(challenge, make([]byte, 0), mask)
+	ok = generator.Validate(challenge, make([]byte, 0))
 	require.False(t, ok)
 }
 
 func Test_Generate_Solve_Validate(t *testing.T) {
+	generator := NewGenerator(5)
 	for complexity := byte(1); complexity <= maxComplexity; complexity++ {
 		t.Run(fmt.Sprintf("complexity_%d", complexity), func(t *testing.T) {
-			challenge, err := Generate(complexity)
+			challenge, err := generator.Generate()
 			require.NoError(t, err)
 
-			solution, err := Solve(challenge)
+			solver := NewSolver()
+			solution, err := solver.Solve(challenge)
 			require.NoError(t, err)
-			mask := MakeValidationMask(GetComplexity(challenge))
-			ok := Validate(challenge, solution, mask)
+			ok := generator.Validate(challenge, solution)
 			require.True(t, ok)
 		})
 	}
 }
 
 func Benchmark_Generate_Solve(b *testing.B) {
+	generator := NewGenerator(5)
 	for complexity := byte(1); complexity <= maxComplexity; complexity++ {
 		b.Run(fmt.Sprintf("complexity_%d", complexity), func(b *testing.B) {
-			challenge, err := Generate(complexity)
+			challenge, err := generator.Generate()
 			require.NoError(b, err)
 
-			_, err = Solve(challenge)
+			solver := NewSolver()
+			_, err = solver.Solve(challenge)
 			require.NoError(b, err)
 		})
 	}

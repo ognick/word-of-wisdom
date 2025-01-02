@@ -2,12 +2,12 @@ package app
 
 import (
 	commonconfig "word_of_wisdom/internal/common/config"
-	httpV1 "word_of_wisdom/internal/server/internal/api/http/v1"
-	tcpV1 "word_of_wisdom/internal/server/internal/api/tcp/v1"
 	privateconfig "word_of_wisdom/internal/server/internal/config"
-	"word_of_wisdom/internal/server/internal/services/challenge"
-	"word_of_wisdom/internal/server/internal/services/challenge/repository"
-	"word_of_wisdom/internal/server/internal/services/wisdom"
+	challengeuc "word_of_wisdom/internal/server/internal/services/challenge/usecase"
+	httpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
+	tcpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
+	wisdomrepo "word_of_wisdom/internal/server/internal/services/wisdom/repository"
+	wisdomuc "word_of_wisdom/internal/server/internal/services/wisdom/usecase"
 	"word_of_wisdom/pkg/http"
 	"word_of_wisdom/pkg/logger"
 	"word_of_wisdom/pkg/pow"
@@ -34,11 +34,11 @@ func Run() {
 	proofOfWorkGenerator := pow.NewGenerator(privateCfg.ChallengeComplexity)
 
 	// Repositories
-	wisdomRepo := repository.NewWisdomRepository()
+	wisdomRepo := wisdomrepo.NewWisdomRepository()
 
 	// Services
-	challengeService := challenge.NewService(proofOfWorkGenerator)
-	wisdomService := wisdom.NewService(wisdom.DepRepos{
+	challengeService := challengeuc.NewService(proofOfWorkGenerator)
+	wisdomService := wisdomuc.NewService(wisdomuc.DepRepos{
 		Wisdom: wisdomRepo,
 	})
 

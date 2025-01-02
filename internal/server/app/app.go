@@ -3,11 +3,11 @@ package app
 import (
 	commonconfig "word_of_wisdom/internal/common/config"
 	privateconfig "word_of_wisdom/internal/server/internal/config"
-	challengeuc "word_of_wisdom/internal/server/internal/services/challenge/usecase"
-	httpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
-	tcpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
+	challengeusecase "word_of_wisdom/internal/server/internal/services/challenge/usecase"
+	wisdomhttpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
+	wisdomtcpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
 	wisdomrepo "word_of_wisdom/internal/server/internal/services/wisdom/repository"
-	wisdomuc "word_of_wisdom/internal/server/internal/services/wisdom/usecase"
+	wisdomusecase "word_of_wisdom/internal/server/internal/services/wisdom/usecase"
 	"word_of_wisdom/pkg/http"
 	"word_of_wisdom/pkg/logger"
 	"word_of_wisdom/pkg/pow"
@@ -37,13 +37,13 @@ func Run() {
 	wisdomRepo := wisdomrepo.NewWisdomRepository()
 
 	// Services
-	challengeService := challengeuc.NewService(proofOfWorkGenerator)
-	wisdomService := wisdomuc.NewService(wisdomuc.DepRepos{
+	challengeService := challengeusecase.NewUsecase(proofOfWorkGenerator)
+	wisdomService := wisdomusecase.NewService(wisdomusecase.DepRepos{
 		Wisdom: wisdomRepo,
 	})
 
 	// TCP Handlers
-	tcpHandler := tcpV1.NewHandler(
+	tcpHandler := wisdomtcpV1.NewHandler(
 		challengeService,
 		wisdomService,
 		commonCfg.ChallengeTimeout,
@@ -53,7 +53,7 @@ func Run() {
 	tcpSrv := tcp.NewServer(commonCfg.TCPAddress, tcpHandler.Handle)
 
 	// HTTP Handlers
-	httpHandler := httpV1.NewHandler(
+	httpHandler := wisdomhttpV1.NewHandler(
 		challengeService,
 		wisdomService,
 	).Init()

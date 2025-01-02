@@ -8,14 +8,14 @@ type DepRepos struct {
 	Wisdom wisdomRepository
 }
 
-type Service struct {
+type Usecase struct {
 	repos DepRepos
 }
 
-func NewService(repos DepRepos) *Service {
-	return &Service{repos: repos}
+func NewService(repos DepRepos) *Usecase {
+	return &Usecase{repos: repos}
 }
 
-func (w *Service) GetWisdom() string {
-	return w.repos.Wisdom.GetWisdom()
+func (u *Usecase) GetWisdom() string {
+	return u.repos.Wisdom.GetWisdom()
 }

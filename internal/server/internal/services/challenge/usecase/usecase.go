@@ -1,24 +1,24 @@
 package challenge
 
-type ProofOfWorkGenerator interface {
+type proofOfWorkGenerator interface {
 	Generate() ([]byte, error)
 	Validate([]byte, []byte) bool
 }
 
-type Service struct {
-	pow ProofOfWorkGenerator
+type Usecase struct {
+	pow proofOfWorkGenerator
 }
 
-func NewService(pow ProofOfWorkGenerator) *Service {
-	return &Service{
+func NewUsecase(pow proofOfWorkGenerator) *Usecase {
+	return &Usecase{
 		pow: pow,
 	}
 }
 
-func (s *Service) GenerateChallenge() ([]byte, error) {
-	return s.pow.Generate()
+func (u *Usecase) GenerateChallenge() ([]byte, error) {
+	return u.pow.Generate()
 }
 
-func (s *Service) ValidateSolution(challenge, solution []byte) bool {
-	return s.pow.Validate(challenge, solution)
+func (u *Usecase) ValidateSolution(challenge, solution []byte) bool {
+	return u.pow.Validate(challenge, solution)
 }

@@ -1,15 +1,15 @@
 package challenge
 
-type proofOfWorkGenerator interface {
+type ProofOfWorkGenerator interface {
 	Generate() ([]byte, error)
 	Validate([]byte, []byte) bool
 }
 
 type Usecase struct {
-	pow proofOfWorkGenerator
+	pow ProofOfWorkGenerator
 }
 
-func NewUsecase(pow proofOfWorkGenerator) *Usecase {
+func NewUsecase(pow ProofOfWorkGenerator) *Usecase {
 	return &Usecase{
 		pow: pow,
 	}

@@ -1,21 +1,15 @@
 package wisdom
 
-type wisdomRepository interface {
-	GetWisdom() string
-}
-
-type DepRepos struct {
-	Wisdom wisdomRepository
-}
+import "word_of_wisdom/internal/server/internal/domain/types/repositories"
 
 type Usecase struct {
-	repos DepRepos
+	wisdomRepo repositories.Wisdom
 }
 
-func NewService(repos DepRepos) *Usecase {
-	return &Usecase{repos: repos}
+func NewUsecase(wisdomRepo repositories.Wisdom) *Usecase {
+	return &Usecase{wisdomRepo: wisdomRepo}
 }
 
 func (u *Usecase) GetWisdom() string {
-	return u.repos.Wisdom.GetWisdom()
+	return u.wisdomRepo.GetWisdom()
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hashicorp/golang-lru/v2/expirable"
 	"word_of_wisdom/internal/common/constants"
+	"word_of_wisdom/internal/server/internal/domain/types/usecases"
 	"word_of_wisdom/pkg/logger"
 )
 
@@ -16,12 +17,12 @@ const (
 	cacheTTL  = 1 * time.Second
 )
 
-func ProofOfWorkLimiter(challengeService ChallengeService) gin.HandlerFunc {
+func ProofOfWorkLimiter(challengeUsecase usecases.Challenge) gin.HandlerFunc {
 	cache := expirable.NewLRU[string, []byte](cacheSize, nil, cacheTTL)
 	log := logger.NewLogger()
 
 	generateChallenge := func(c *gin.Context, addr string) {
-		challenge, err := challengeService.GenerateChallenge()
+		challenge, err := challengeUsecase.GenerateChallenge()
 		if err != nil {
 			log.Errorf("faile to generate chellange: %v", err)
 			c.AbortWithStatus(http.StatusInternalServerError)
@@ -55,7 +56,7 @@ func ProofOfWorkLimiter(challengeService ChallengeService) gin.HandlerFunc {
 			return
 		}
 
-		if !challengeService.ValidateSolution(challenge, solution) {
+		if !challengeUsecase.ValidateSolution(challenge, solution) {
 			generateChallenge(c, addr)
 			return
 		}

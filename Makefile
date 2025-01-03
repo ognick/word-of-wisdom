@@ -2,7 +2,11 @@
 .SILENT:
 .DEFAULT_GOAL := run
 
+wire:
+	go run -mod=mod github.com/google/wire/cmd/wire ./...
+
 run:
+	go run -mod=mod github.com/google/wire/cmd/wire ./...
 	docker compose up --build
 
 test:

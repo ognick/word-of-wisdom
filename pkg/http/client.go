@@ -21,20 +21,20 @@ type Client struct {
 }
 
 func NewClient(
-	addr string,
+	addr Address,
 	method string,
 	handler handler,
 ) *Client {
-	host, port, err := net.SplitHostPort(addr)
+	host, port, err := net.SplitHostPort(string(addr))
 	if err != nil {
 		panic(err)
 	}
 	if host == "" {
 		host = "http://0.0.0.0"
 	}
-	addr = host + ":" + port
+	address := host + ":" + port
 	return &Client{
-		addr:    addr,
+		addr:    address,
 		method:  method,
 		handler: handler,
 		client:  &http.Client{},

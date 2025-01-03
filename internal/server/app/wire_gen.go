@@ -13,6 +13,8 @@ import (
 	http2 "net/http"
 	"word_of_wisdom/internal/common/config"
 	config2 "word_of_wisdom/internal/server/internal/config"
+	"word_of_wisdom/internal/server/internal/domain/types/repositories"
+	"word_of_wisdom/internal/server/internal/domain/types/usecases"
 	"word_of_wisdom/internal/server/internal/services/challenge/usecase"
 	v1_2 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
 	"word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
@@ -43,8 +45,8 @@ func InitApp() (*App, error) {
 	complexity := provideChallengeComplexity(config3)
 	generator := pow.NewGenerator(complexity)
 	usecase := challenge.NewUsecase(generator)
-	wisdomRepository := repository.NewWisdomRepository()
-	wisdomUsecase := wisdom.NewUsecase(wisdomRepository)
+	repositoryRepository := repository.NewRepository()
+	wisdomUsecase := wisdom.NewUsecase(repositoryRepository)
 	challengeTimeout := provideChallengeTimeout(configConfig)
 	handler := v1.NewHandler(usecase, wisdomUsecase, challengeTimeout)
 	v := v1.ProvideTCPHandle(handler)
@@ -84,6 +86,7 @@ func provideHTTPAddr(cfg config.Config) http.Address {
 }
 
 var Application = wire.NewSet(
-	NewApp, tcp.NewServer, v1.Set, provideTCPAddress,
-	provideChallengeTimeout, http.NewServer, v1_2.Set, provideHTTPAddr, config.Set, config2.Set, provideLogger, repository.Set, pow.NewGenerator, provideChallengeComplexity, challenge.Set, wisdom.Set, wire.Bind(new(v1.ChallengeUsecase), new(*challenge.Usecase)), wire.Bind(new(v1_2.ChallengeUsecase), new(*challenge.Usecase)), wire.Bind(new(v1.WisdomUsecase), new(*wisdom.Usecase)), wire.Bind(new(v1_2.WisdomUsecase), new(*wisdom.Usecase)), wire.Bind(new(wisdom.WisdomRepo), new(*repository.WisdomRepository)), wire.Bind(new(challenge.ProofOfWorkGenerator), new(*pow.Generator)), wire.Bind(new(http2.Handler), new(*gin.Engine)),
+	NewApp,
+	provideLogger, tcp.NewServer, v1.Set, provideTCPAddress,
+	provideChallengeTimeout, http.NewServer, v1_2.Set, wire.Bind(new(http2.Handler), new(*gin.Engine)), provideHTTPAddr, config.Set, config2.Set, repository.NewRepository, pow.NewGenerator, provideChallengeComplexity, wire.Bind(new(challenge.ProofOfWorkGenerator), new(*pow.Generator)), wire.Bind(new(repositories.Wisdom), new(*repository.Repository)), challenge.NewUsecase, wire.Bind(new(usecases.Challenge), new(*challenge.Usecase)), wisdom.NewUsecase, wire.Bind(new(usecases.Wisdom), new(*wisdom.Usecase)),
 )

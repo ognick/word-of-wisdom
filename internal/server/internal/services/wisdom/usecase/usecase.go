@@ -1,21 +1,15 @@
 package wisdom
 
-import "github.com/google/wire"
-
-type WisdomRepo interface {
-	GetWisdom() string
-}
+import "word_of_wisdom/internal/server/internal/domain/types/repositories"
 
 type Usecase struct {
-	wisdomRepo WisdomRepo
+	wisdomRepo repositories.Wisdom
 }
 
-func NewUsecase(wisdomRepo WisdomRepo) *Usecase {
+func NewUsecase(wisdomRepo repositories.Wisdom) *Usecase {
 	return &Usecase{wisdomRepo: wisdomRepo}
 }
 
 func (u *Usecase) GetWisdom() string {
 	return u.wisdomRepo.GetWisdom()
 }
-
-var Set = wire.NewSet(NewUsecase)

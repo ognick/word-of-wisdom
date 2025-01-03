@@ -4,29 +4,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"word_of_wisdom/internal/server/internal/domain/types/usecases"
 )
 
-type WisdomUsecase interface {
-	GetWisdom() string
-}
-
-type ChallengeUsecase interface {
-	GenerateChallenge() ([]byte, error)
-	ValidateSolution(challenge, solution []byte) bool
-}
-
 type Handler struct {
-	challengeUsecase ChallengeUsecase
-	wisdomUsecase    WisdomUsecase
+	challengeUsecase usecases.Challenge
+	wisdomUsecase    usecases.Wisdom
 }
 
 func NewHandler(
-	challengeService ChallengeUsecase,
-	wisdomService WisdomUsecase,
+	challengeUsecase usecases.Challenge,
+	wisdomUsecase usecases.Wisdom,
 ) *Handler {
 	return &Handler{
-		challengeUsecase: challengeService,
-		wisdomUsecase:    wisdomService,
+		challengeUsecase: challengeUsecase,
+		wisdomUsecase:    wisdomUsecase,
 	}
 }
 

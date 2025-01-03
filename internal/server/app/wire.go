@@ -11,6 +11,8 @@ import (
 	"github.com/google/wire"
 	commonconfig "word_of_wisdom/internal/common/config"
 	privateconfig "word_of_wisdom/internal/server/internal/config"
+	"word_of_wisdom/internal/server/internal/domain/types/repositories"
+	"word_of_wisdom/internal/server/internal/domain/types/usecases"
 	challengeusecase "word_of_wisdom/internal/server/internal/services/challenge/usecase"
 	wisdomhttpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
 	wisdomtcpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
@@ -53,32 +55,30 @@ func provideHTTPAddr(cfg commonconfig.Config) http.Address {
 
 var Application = wire.NewSet(
 	NewApp,
+	provideLogger,
 
 	tcp.NewServer,
 	wisdomtcpV1.Set,
 	provideTCPAddress,
 	provideChallengeTimeout,
+
 	http.NewServer,
 	wisdomhttpV1.Set,
+	wire.Bind(new(nethttp.Handler), new(*gin.Engine)),
 	provideHTTPAddr,
 
 	commonconfig.Set,
 	privateconfig.Set,
 
-	provideLogger,
-
-	wisdomrepo.Set,
+	wisdomrepo.NewRepository,
 	pow.NewGenerator,
 	provideChallengeComplexity,
-
-	challengeusecase.Set,
-	wisdomusecase.Set,
-
-	wire.Bind(new(wisdomtcpV1.ChallengeUsecase), new(*challengeusecase.Usecase)),
-	wire.Bind(new(wisdomhttpV1.ChallengeUsecase), new(*challengeusecase.Usecase)),
-	wire.Bind(new(wisdomtcpV1.WisdomUsecase), new(*wisdomusecase.Usecase)),
-	wire.Bind(new(wisdomhttpV1.WisdomUsecase), new(*wisdomusecase.Usecase)),
-	wire.Bind(new(wisdomusecase.WisdomRepo), new(*wisdomrepo.WisdomRepository)),
 	wire.Bind(new(challengeusecase.ProofOfWorkGenerator), new(*pow.Generator)),
-	wire.Bind(new(nethttp.Handler), new(*gin.Engine)),
+	wire.Bind(new(repositories.Wisdom), new(*wisdomrepo.Repository)),
+
+	challengeusecase.NewUsecase,
+	wire.Bind(new(usecases.Challenge), new(*challengeusecase.Usecase)),
+
+	wisdomusecase.NewUsecase,
+	wire.Bind(new(usecases.Wisdom), new(*wisdomusecase.Usecase)),
 )

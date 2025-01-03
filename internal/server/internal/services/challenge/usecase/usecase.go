@@ -1,7 +1,5 @@
 package challenge
 
-import "github.com/google/wire"
-
 type ProofOfWorkGenerator interface {
 	Generate() ([]byte, error)
 	Validate([]byte, []byte) bool
@@ -24,5 +22,3 @@ func (u *Usecase) GenerateChallenge() ([]byte, error) {
 func (u *Usecase) ValidateSolution(challenge, solution []byte) bool {
 	return u.pow.Validate(challenge, solution)
 }
-
-var Set = wire.NewSet(NewUsecase)

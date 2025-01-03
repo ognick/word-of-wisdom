@@ -2,16 +2,14 @@ package repository
 
 import (
 	"math/rand"
-
-	"github.com/google/wire"
 )
 
-type WisdomRepository struct {
+type Repository struct {
 	words []string
 }
 
-func NewWisdomRepository() *WisdomRepository {
-	return &WisdomRepository{
+func NewRepository() *Repository {
+	return &Repository{
 		words: []string{
 			"Don't communicate by sharing memory, share memory by communicating",
 			"Concurrency is not parallelism",
@@ -31,10 +29,8 @@ func NewWisdomRepository() *WisdomRepository {
 	}
 }
 
-func (repo *WisdomRepository) GetWisdom() string {
+func (repo *Repository) GetWisdom() string {
 	size := len(repo.words)
 	pos := rand.Intn(size)
 	return repo.words[pos]
 }
-
-var Set = wire.NewSet(NewWisdomRepository)

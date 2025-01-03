@@ -2,15 +2,19 @@ package pow
 
 import (
 	"crypto/rand"
+
+	"github.com/google/wire"
 )
+
+type Complexity byte
 
 type Generator struct {
 	*ProofOfWork
 }
 
-func NewGenerator(complexity byte) *Generator {
+func NewGenerator(complexity Complexity) *Generator {
 	return &Generator{
-		ProofOfWork: NewProofOfWork(complexity),
+		ProofOfWork: NewProofOfWork(byte(complexity)),
 	}
 }
 
@@ -23,3 +27,5 @@ func (g *Generator) Generate() ([]byte, error) {
 
 	return challenge, nil
 }
+
+var Set = wire.NewSet(NewGenerator)

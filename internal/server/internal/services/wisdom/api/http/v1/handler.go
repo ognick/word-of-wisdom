@@ -6,27 +6,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type WisdomService interface {
+type WisdomUsecase interface {
 	GetWisdom() string
 }
 
-type ChallengeService interface {
+type ChallengeUsecase interface {
 	GenerateChallenge() ([]byte, error)
 	ValidateSolution(challenge, solution []byte) bool
 }
 
 type Handler struct {
-	challengeService ChallengeService
-	wisdomService    WisdomService
+	challengeUsecase ChallengeUsecase
+	wisdomUsecase    WisdomUsecase
 }
 
 func NewHandler(
-	challengeService ChallengeService,
-	wisdomService WisdomService,
+	challengeService ChallengeUsecase,
+	wisdomService WisdomUsecase,
 ) *Handler {
 	return &Handler{
-		challengeService: challengeService,
-		wisdomService:    wisdomService,
+		challengeUsecase: challengeService,
+		wisdomUsecase:    wisdomService,
 	}
 }
 
@@ -49,10 +49,14 @@ func (h *Handler) Init() *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine) {
-	v1 := router.Group("/v1", ProofOfWorkLimiter(h.challengeService))
+	v1 := router.Group("/v1", ProofOfWorkLimiter(h.challengeUsecase))
 	{
 		v1.GET("/wisdom", func(c *gin.Context) {
-			c.String(http.StatusOK, h.wisdomService.GetWisdom())
+			c.String(http.StatusOK, h.wisdomUsecase.GetWisdom())
 		})
 	}
+}
+
+func ProvideHTTPEngine(handler *Handler) *gin.Engine {
+	return handler.Init()
 }

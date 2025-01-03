@@ -16,7 +16,7 @@ const (
 	cacheTTL  = 1 * time.Second
 )
 
-func ProofOfWorkLimiter(challengeService ChallengeService) gin.HandlerFunc {
+func ProofOfWorkLimiter(challengeService ChallengeUsecase) gin.HandlerFunc {
 	cache := expirable.NewLRU[string, []byte](cacheSize, nil, cacheTTL)
 	log := logger.NewLogger()
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v7"
+	"github.com/google/wire"
 )
 
 type Config struct {
@@ -23,3 +24,5 @@ func NewConfig() (Config, error) {
 
 	return cfg, nil
 }
+
+var Set = wire.NewSet(NewConfig)

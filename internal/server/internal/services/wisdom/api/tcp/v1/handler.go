@@ -6,36 +6,39 @@ import (
 	"net"
 	"time"
 
+	"github.com/google/wire"
 	"word_of_wisdom/pkg/logger"
 )
 
 const bufSize = 64
 
-type WisdomService interface {
+type ChallengeTimeout time.Duration
+
+type WisdomUsecase interface {
 	GetWisdom() string
 }
 
-type ChallengeService interface {
+type ChallengeUsecase interface {
 	GenerateChallenge() ([]byte, error)
 	ValidateSolution(challenge, solution []byte) bool
 }
 
 type Handler struct {
-	challengeService ChallengeService
-	wisdomService    WisdomService
+	challengeUsecase ChallengeUsecase
+	wisdomUsecase    WisdomUsecase
 	timeout          time.Duration
 	log              logger.Logger
 }
 
 func NewHandler(
-	challengeService ChallengeService,
-	wisdomService WisdomService,
-	timeout time.Duration,
+	challengeUsecase ChallengeUsecase,
+	wisdomUsecase WisdomUsecase,
+	timeout ChallengeTimeout,
 ) *Handler {
 	return &Handler{
-		challengeService: challengeService,
-		wisdomService:    wisdomService,
-		timeout:          timeout,
+		challengeUsecase: challengeUsecase,
+		wisdomUsecase:    wisdomUsecase,
+		timeout:          time.Duration(timeout),
 		log:              logger.NewLogger(),
 	}
 }
@@ -50,7 +53,7 @@ func (h *Handler) Handle(conn net.Conn) {
 		h.log.Debugf("connection closed")
 	}()
 
-	challenge, err := h.challengeService.GenerateChallenge()
+	challenge, err := h.challengeUsecase.GenerateChallenge()
 	if err != nil {
 		h.log.Errorf("failed to generate challange: %v", err)
 		return
@@ -78,12 +81,12 @@ func (h *Handler) Handle(conn net.Conn) {
 		return
 	}
 
-	if !h.challengeService.ValidateSolution(challenge, solution[:n]) {
+	if !h.challengeUsecase.ValidateSolution(challenge, solution[:n]) {
 		h.log.Debugf("client couldn't proof of work")
 		return
 	}
 
-	wisdom := h.wisdomService.GetWisdom()
+	wisdom := h.wisdomUsecase.GetWisdom()
 	_, err = conn.Write([]byte(wisdom))
 	if err != nil {
 		h.log.Errorf("failed to send wisdom: %v", err)
@@ -92,3 +95,12 @@ func (h *Handler) Handle(conn net.Conn) {
 
 	h.log.Debugf("wisdom: %s", wisdom)
 }
+
+func ProvideTCPHandle(handler *Handler) func(net.Conn) {
+	return handler.Handle
+}
+
+var Set = wire.NewSet(
+	NewHandler,
+	ProvideTCPHandle,
+)

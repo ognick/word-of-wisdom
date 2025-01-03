@@ -9,16 +9,18 @@ import (
 	"word_of_wisdom/pkg/logger"
 )
 
+type Address string
+
 type Server struct {
 	log logger.Logger
 	srv *http.Server
 }
 
-func NewServer(addr string, handler http.Handler) *Server {
+func NewServer(addr Address, handler http.Handler) *Server {
 	return &Server{
 		log: logger.NewLogger(),
 		srv: &http.Server{
-			Addr:    addr,
+			Addr:    string(addr),
 			Handler: handler,
 		},
 	}

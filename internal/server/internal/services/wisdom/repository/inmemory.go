@@ -1,6 +1,10 @@
 package repository
 
-import "math/rand"
+import (
+	"math/rand"
+
+	"github.com/google/wire"
+)
 
 type WisdomRepository struct {
 	words []string
@@ -32,3 +36,5 @@ func (repo *WisdomRepository) GetWisdom() string {
 	pos := rand.Intn(size)
 	return repo.words[pos]
 }
+
+var Set = wire.NewSet(NewWisdomRepository)

@@ -87,6 +87,7 @@ func provideHTTPAddr(cfg config.Config) http.Address {
 
 var Application = wire.NewSet(
 	NewApp,
-	provideLogger, tcp.NewServer, v1.Set, provideTCPAddress,
-	provideChallengeTimeout, http.NewServer, v1_2.Set, wire.Bind(new(http2.Handler), new(*gin.Engine)), provideHTTPAddr, config.Set, config2.Set, repository.NewRepository, pow.NewGenerator, provideChallengeComplexity, wire.Bind(new(challenge.ProofOfWorkGenerator), new(*pow.Generator)), wire.Bind(new(repositories.Wisdom), new(*repository.Repository)), challenge.NewUsecase, wire.Bind(new(usecases.Challenge), new(*challenge.Usecase)), wisdom.NewUsecase, wire.Bind(new(usecases.Wisdom), new(*wisdom.Usecase)),
+
+	provideLogger, config.Set, config2.Set, tcp.NewServer, v1.Set, provideTCPAddress,
+	provideChallengeTimeout, http.NewServer, v1_2.Set, wire.Bind(new(http2.Handler), new(*gin.Engine)), provideHTTPAddr, repository.NewRepository, wire.Bind(new(repositories.Wisdom), new(*repository.Repository)), pow.NewGenerator, wire.Bind(new(challenge.ProofOfWorkGenerator), new(*pow.Generator)), provideChallengeComplexity, challenge.NewUsecase, wire.Bind(new(usecases.Challenge), new(*challenge.Usecase)), wisdom.NewUsecase, wire.Bind(new(usecases.Wisdom), new(*wisdom.Usecase)),
 )

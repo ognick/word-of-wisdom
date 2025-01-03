@@ -55,30 +55,29 @@ func provideHTTPAddr(cfg commonconfig.Config) http.Address {
 
 var Application = wire.NewSet(
 	NewApp,
+
 	provideLogger,
 
+	commonconfig.Set,
+	privateconfig.Set,
+
+	// TCP Handlers
 	tcp.NewServer,
 	wisdomtcpV1.Set,
 	provideTCPAddress,
 	provideChallengeTimeout,
 
+	// HTTP Handlers
 	http.NewServer,
-	wisdomhttpV1.Set,
-	wire.Bind(new(nethttp.Handler), new(*gin.Engine)),
+	wisdomhttpV1.Set, wire.Bind(new(nethttp.Handler), new(*gin.Engine)),
 	provideHTTPAddr,
 
-	commonconfig.Set,
-	privateconfig.Set,
-
-	wisdomrepo.NewRepository,
-	pow.NewGenerator,
+	// Repositories
+	wisdomrepo.NewRepository, wire.Bind(new(repositories.Wisdom), new(*wisdomrepo.Repository)),
+	pow.NewGenerator, wire.Bind(new(challengeusecase.ProofOfWorkGenerator), new(*pow.Generator)),
 	provideChallengeComplexity,
-	wire.Bind(new(challengeusecase.ProofOfWorkGenerator), new(*pow.Generator)),
-	wire.Bind(new(repositories.Wisdom), new(*wisdomrepo.Repository)),
 
-	challengeusecase.NewUsecase,
-	wire.Bind(new(usecases.Challenge), new(*challengeusecase.Usecase)),
-
-	wisdomusecase.NewUsecase,
-	wire.Bind(new(usecases.Wisdom), new(*wisdomusecase.Usecase)),
+	// Usecases
+	challengeusecase.NewUsecase, wire.Bind(new(usecases.Challenge), new(*challengeusecase.Usecase)),
+	wisdomusecase.NewUsecase, wire.Bind(new(usecases.Wisdom), new(*wisdomusecase.Usecase)),
 )

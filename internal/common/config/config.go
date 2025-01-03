@@ -6,11 +6,13 @@ import (
 
 	"github.com/caarlos0/env/v7"
 	"github.com/google/wire"
+	"word_of_wisdom/pkg/http"
+	"word_of_wisdom/pkg/tcp"
 )
 
 type Config struct {
-	TCPAddress       string        `env:"CONF_TCP_ADDRESS" envDefault:":8080"`
-	HTTPAddress      string        `env:"CONF_HTTP_ADDRESS" envDefault:":8888"`
+	TCPAddress       tcp.Address   `env:"CONF_TCP_ADDRESS" envDefault:":8080"`
+	HTTPAddress      http.Address  `env:"CONF_HTTP_ADDRESS" envDefault:":8888"`
 	LogLevel         string        `env:"CONF_LOG_LEVEL" envDefault:"debug"`
 	ChallengeTimeout time.Duration `env:"CONF_TIMEOUT" envDefault:"1s"`
 }

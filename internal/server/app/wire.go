@@ -24,7 +24,7 @@ import (
 	"word_of_wisdom/pkg/tcp"
 )
 
-func InitApp() (*App, error) {
+func InitializeAppWithWire() (*App, error) {
 	wire.Build(Application)
 	return nil, nil
 }

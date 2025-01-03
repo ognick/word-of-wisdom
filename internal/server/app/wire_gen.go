@@ -28,7 +28,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitApp() (*App, error) {
+func InitializeAppWithWire() (*App, error) {
 	configConfig, err := config.NewConfig()
 	if err != nil {
 		return nil, err

@@ -8,11 +8,10 @@ import (
 	"net"
 	nethttp "net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 
 	commonconfig "github.com/ognick/word_of_wisdom/internal/common/config"
-	privateconfig "github.com/ognick/word_of_wisdom/internal/server/internal/config"
+	internalconfig "github.com/ognick/word_of_wisdom/internal/server/internal/config"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge"
 	challengeusecase "github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge/usecase"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom"
@@ -40,7 +39,7 @@ func provideChallengeTimeout(cfg commonconfig.Config) wisdomtcpV1.ChallengeTimeo
 	return wisdomtcpV1.ChallengeTimeout(cfg.ChallengeTimeout)
 }
 
-func provideProofOfWorkGenerator(cfg privateconfig.Config) challengeusecase.ProofOfWorkGenerator {
+func provideProofOfWorkGenerator(cfg internalconfig.Config) challengeusecase.ProofOfWorkGenerator {
 	return pow.NewGenerator(cfg.ChallengeComplexity)
 }
 
@@ -52,25 +51,18 @@ func provideHTTPServer(cfg commonconfig.Config, handler nethttp.Handler) *http.S
 	return http.NewServer(cfg.HTTPAddress, handler)
 }
 
-func provideHTTPHandler(router *gin.Engine) nethttp.Handler {
-	return router
-}
-
 var Application = wire.NewSet(
+	// Application
 	NewApp,
 	commonconfig.NewConfig,
-	privateconfig.NewConfig,
 	provideLogger,
-
+	provideTCPServer,
+	provideHTTPServer,
+	registerHTTPHandlers,
+	// Domain
 	wisdom.Init,
-
 	challenge.Init,
 	provideChallengeTimeout,
 	provideProofOfWorkGenerator,
-
-	provideTCPServer,
-
-	provideHTTPServer,
-	initHTTPRouter,
-	provideHTTPHandler,
+	internalconfig.NewConfig,
 )

@@ -27,9 +27,9 @@ func NewApp(log logger.Logger, tcpSrv *tcp.Server, httpServ *http.Server) *App {
 	}
 }
 
-func initHTTPRouter(
+func registerHTTPHandlers(
 	wisdomV1 *wisdomhttpv1.Handler,
-) *gin.Engine {
+) nethttp.Handler {
 	router := gin.Default()
 	router.Use(
 		gin.Recovery(),

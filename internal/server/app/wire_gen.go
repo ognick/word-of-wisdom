@@ -8,7 +8,6 @@ package app
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"github.com/ognick/word_of_wisdom/internal/common/config"
 	config2 "github.com/ognick/word_of_wisdom/internal/server/internal/config"
@@ -49,8 +48,7 @@ func InitializeApp() (*App, error) {
 	v := v1.ProvideTCPHandle(handler)
 	server := provideTCPServer(configConfig, v)
 	v1Handler := v1_2.NewHandler(usecasesChallenge, usecasesWisdom)
-	engine := initHTTPRouter(v1Handler)
-	httpHandler := provideHTTPHandler(engine)
+	httpHandler := registerHTTPHandlers(v1Handler)
 	httpServer := provideHTTPServer(configConfig, httpHandler)
 	app := NewApp(logger, server, httpServer)
 	return app, nil
@@ -82,17 +80,11 @@ func provideHTTPServer(cfg config.Config, handler http.Handler) *http2.Server {
 	return http2.NewServer(cfg.HTTPAddress, handler)
 }
 
-func provideHTTPHandler(router *gin.Engine) http.Handler {
-	return router
-}
-
 var Application = wire.NewSet(
-	NewApp, config.NewConfig, config2.NewConfig, provideLogger, wisdom.Init, challenge.Init, provideChallengeTimeout,
-	provideProofOfWorkGenerator,
 
+	NewApp, config.NewConfig, provideLogger,
 	provideTCPServer,
-
 	provideHTTPServer,
-	initHTTPRouter,
-	provideHTTPHandler,
+	registerHTTPHandlers, wisdom.Init, challenge.Init, provideChallengeTimeout,
+	provideProofOfWorkGenerator, config2.NewConfig,
 )

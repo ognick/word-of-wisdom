@@ -78,7 +78,7 @@ func (h *Handler) Handle(conn net.Conn) {
 	}
 
 	wisdom := h.wisdomUsecase.GetWisdom()
-	_, err = conn.Write([]byte(wisdom))
+	_, err = conn.Write([]byte(wisdom.Content))
 	if err != nil {
 		h.log.Errorf("failed to send wisdom: %v", err)
 		return

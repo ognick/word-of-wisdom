@@ -1,9 +1,11 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1/dto"
 
 	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
 )
@@ -45,7 +47,12 @@ func (h *Handler) initAPI(router *gin.Engine) {
 	v1 := router.Group("/v1", ProofOfWorkLimiter(h.challengeUsecase))
 	{
 		v1.GET("/wisdom", func(c *gin.Context) {
-			c.String(http.StatusOK, h.wisdomUsecase.GetWisdom())
+			response, err := json.Marshal(dto.NewWisdom(h.wisdomUsecase.GetWisdom()))
+			if err != nil {
+				c.String(http.StatusInternalServerError, "failed to marshal response")
+				return
+			}
+			c.String(http.StatusOK, string(response))
 		})
 	}
 }

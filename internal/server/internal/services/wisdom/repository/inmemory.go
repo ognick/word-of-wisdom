@@ -2,6 +2,8 @@ package repository
 
 import (
 	"math/rand"
+
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/models"
 )
 
 type Repository struct {
@@ -29,8 +31,10 @@ func NewRepository() *Repository {
 	}
 }
 
-func (repo *Repository) GetWisdom() string {
+func (repo *Repository) GetWisdom() models.Wisdom {
 	size := len(repo.words)
 	pos := rand.Intn(size)
-	return repo.words[pos]
+	return models.Wisdom{
+		Content: repo.words[pos],
+	}
 }

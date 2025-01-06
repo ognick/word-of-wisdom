@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	"word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 type Client struct {
@@ -30,7 +30,6 @@ func (c *Client) Connect(ctx context.Context) error {
 	conn, err := c.dialer.DialContext(ctx, "tcp", c.addr)
 	if err != nil {
 		return fmt.Errorf("failed to connect: %w", err)
-
 	}
 	defer func() {
 		if err := conn.Close(); err != nil {

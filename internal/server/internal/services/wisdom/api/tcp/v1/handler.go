@@ -6,9 +6,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/google/wire"
-	"word_of_wisdom/internal/server/internal/domain/types/usecases"
-	"word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 const bufSize = 64
@@ -87,12 +86,3 @@ func (h *Handler) Handle(conn net.Conn) {
 
 	h.log.Debugf("wisdom: %s", wisdom)
 }
-
-func ProvideTCPHandle(handler *Handler) func(net.Conn) {
-	return handler.Handle
-}
-
-var Set = wire.NewSet(
-	NewHandler,
-	ProvideTCPHandle,
-)

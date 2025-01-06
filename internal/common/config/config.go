@@ -6,8 +6,9 @@ import (
 
 	"github.com/caarlos0/env/v7"
 	"github.com/google/wire"
-	"word_of_wisdom/pkg/http"
-	"word_of_wisdom/pkg/tcp"
+
+	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 type Config struct {

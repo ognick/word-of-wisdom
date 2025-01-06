@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"word_of_wisdom/internal/server/internal/domain/types/usecases"
+
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
 )
 
 type Handler struct {
@@ -47,8 +48,4 @@ func (h *Handler) initAPI(router *gin.Engine) {
 			c.String(http.StatusOK, h.wisdomUsecase.GetWisdom())
 		})
 	}
-}
-
-func ProvideHTTPEngine(handler *Handler) *gin.Engine {
-	return handler.Init()
 }

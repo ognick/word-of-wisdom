@@ -3,10 +3,10 @@ package app
 import (
 	"log"
 
-	"word_of_wisdom/pkg/http"
-	"word_of_wisdom/pkg/logger"
-	"word_of_wisdom/pkg/shutdown"
-	"word_of_wisdom/pkg/tcp"
+	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/shutdown"
+	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 type App struct {

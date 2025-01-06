@@ -1,4 +1,4 @@
-module word_of_wisdom
+module github.com/ognick/word_of_wisdom
 
 go 1.22
 

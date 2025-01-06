@@ -13,4 +13,4 @@ test:
 	go test --count=1  -bench=. -v ./...
 
 lint:
-	golangci-lint run
+	golangci-lint run --fix --verbose

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"word_of_wisdom/internal/server/app"
+	"github.com/ognick/word_of_wisdom/internal/server/app"
 )
 
 func main() {

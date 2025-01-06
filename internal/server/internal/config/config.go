@@ -5,7 +5,8 @@ import (
 
 	"github.com/caarlos0/env/v7"
 	"github.com/google/wire"
-	"word_of_wisdom/pkg/pow"
+
+	"github.com/ognick/word_of_wisdom/pkg/pow"
 )
 
 type Config struct {

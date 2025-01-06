@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 
-	"word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 type handler func(ctx context.Context, status int, header http.Header, body []byte) error
@@ -56,7 +56,6 @@ func (c *Client) Request(
 		for _, v := range values {
 			req.Header.Add(key, v)
 		}
-
 	}
 
 	resp, err := c.client.Do(req)

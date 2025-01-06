@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 type Address string

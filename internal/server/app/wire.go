@@ -5,26 +5,21 @@ package app
 
 import (
 	"fmt"
-	nethttp "net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
-	commonconfig "word_of_wisdom/internal/common/config"
-	privateconfig "word_of_wisdom/internal/server/internal/config"
-	"word_of_wisdom/internal/server/internal/domain/types/repositories"
-	"word_of_wisdom/internal/server/internal/domain/types/usecases"
-	challengeusecase "word_of_wisdom/internal/server/internal/services/challenge/usecase"
-	wisdomhttpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
-	wisdomtcpV1 "word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
-	wisdomrepo "word_of_wisdom/internal/server/internal/services/wisdom/repository"
-	wisdomusecase "word_of_wisdom/internal/server/internal/services/wisdom/usecase"
-	"word_of_wisdom/pkg/http"
-	"word_of_wisdom/pkg/logger"
-	"word_of_wisdom/pkg/pow"
-	"word_of_wisdom/pkg/tcp"
+	commonconfig "github.com/ognick/word_of_wisdom/internal/common/config"
+	privateconfig "github.com/ognick/word_of_wisdom/internal/server/internal/config"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge"
+	challengeusecase "github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge/usecase"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom"
+	wisdomtcpV1 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
+	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/pow"
+	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
-func InitializeAppWithWire() (*App, error) {
+func InitializeApp() (*App, error) {
 	wire.Build(Application)
 	return nil, nil
 }
@@ -45,6 +40,10 @@ func provideChallengeTimeout(cfg commonconfig.Config) wisdomtcpV1.ChallengeTimeo
 	return wisdomtcpV1.ChallengeTimeout(cfg.ChallengeTimeout)
 }
 
+func provideProofOfWorkGenerator(complexity pow.Complexity) challengeusecase.ProofOfWorkGenerator {
+	return pow.NewGenerator(complexity)
+}
+
 func provideTCPAddress(cfg commonconfig.Config) tcp.Address {
 	return tcp.Address(cfg.TCPAddress)
 }
@@ -61,23 +60,15 @@ var Application = wire.NewSet(
 	commonconfig.Set,
 	privateconfig.Set,
 
-	// TCP Handlers
-	tcp.NewServer,
-	wisdomtcpV1.Set,
-	provideTCPAddress,
-	provideChallengeTimeout,
-
-	// HTTP Handlers
-	http.NewServer,
-	wisdomhttpV1.Set, wire.Bind(new(nethttp.Handler), new(*gin.Engine)),
-	provideHTTPAddr,
-
-	// Repositories
-	wisdomrepo.NewRepository, wire.Bind(new(repositories.Wisdom), new(*wisdomrepo.Repository)),
-	pow.NewGenerator, wire.Bind(new(challengeusecase.ProofOfWorkGenerator), new(*pow.Generator)),
+	wisdom.Set,
+	challenge.Set,
 	provideChallengeComplexity,
+	provideChallengeTimeout,
+	provideProofOfWorkGenerator,
 
-	// Usecases
-	challengeusecase.NewUsecase, wire.Bind(new(usecases.Challenge), new(*challengeusecase.Usecase)),
-	wisdomusecase.NewUsecase, wire.Bind(new(usecases.Wisdom), new(*wisdomusecase.Usecase)),
+	tcp.NewServer,
+	provideTCPAddress,
+
+	http.NewServer,
+	provideHTTPAddr,
 )

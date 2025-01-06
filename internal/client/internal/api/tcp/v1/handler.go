@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 const (

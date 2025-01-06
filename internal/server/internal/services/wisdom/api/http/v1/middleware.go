@@ -7,9 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hashicorp/golang-lru/v2/expirable"
-	"word_of_wisdom/internal/common/constants"
-	"word_of_wisdom/internal/server/internal/domain/types/usecases"
-	"word_of_wisdom/pkg/logger"
+
+	"github.com/ognick/word_of_wisdom/internal/common/constants"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 const (

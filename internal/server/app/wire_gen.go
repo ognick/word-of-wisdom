@@ -8,27 +8,23 @@ package app
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
-	http2 "net/http"
-	"word_of_wisdom/internal/common/config"
-	config2 "word_of_wisdom/internal/server/internal/config"
-	"word_of_wisdom/internal/server/internal/domain/types/repositories"
-	"word_of_wisdom/internal/server/internal/domain/types/usecases"
-	"word_of_wisdom/internal/server/internal/services/challenge/usecase"
-	v1_2 "word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
-	"word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
-	"word_of_wisdom/internal/server/internal/services/wisdom/repository"
-	"word_of_wisdom/internal/server/internal/services/wisdom/usecase"
-	"word_of_wisdom/pkg/http"
-	"word_of_wisdom/pkg/logger"
-	"word_of_wisdom/pkg/pow"
-	"word_of_wisdom/pkg/tcp"
+	"github.com/ognick/word_of_wisdom/internal/common/config"
+	config2 "github.com/ognick/word_of_wisdom/internal/server/internal/config"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge"
+	challenge2 "github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge/usecase"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom"
+	v1_2 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
+	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/pow"
+	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 // Injectors from wire.go:
 
-func InitializeAppWithWire() (*App, error) {
+func InitializeApp() (*App, error) {
 	configConfig, err := config.NewConfig()
 	if err != nil {
 		return nil, err
@@ -43,18 +39,18 @@ func InitializeAppWithWire() (*App, error) {
 		return nil, err
 	}
 	complexity := provideChallengeComplexity(config3)
-	generator := pow.NewGenerator(complexity)
-	usecase := challenge.NewUsecase(generator)
-	repositoryRepository := repository.NewRepository()
-	wisdomUsecase := wisdom.NewUsecase(repositoryRepository)
+	proofOfWorkGenerator := provideProofOfWorkGenerator(complexity)
+	usecasesChallenge := challenge.ProvideUsecase(proofOfWorkGenerator)
+	repositoriesWisdom := wisdom.ProvideRepo()
+	usecasesWisdom := wisdom.ProvideUsecase(repositoriesWisdom)
 	challengeTimeout := provideChallengeTimeout(configConfig)
-	handler := v1.NewHandler(usecase, wisdomUsecase, challengeTimeout)
+	handler := v1.NewHandler(usecasesChallenge, usecasesWisdom, challengeTimeout)
 	v := v1.ProvideTCPHandle(handler)
 	server := tcp.NewServer(address, v)
 	httpAddress := provideHTTPAddr(configConfig)
-	v1Handler := v1_2.NewHandler(usecase, wisdomUsecase)
-	engine := v1_2.ProvideHTTPEngine(v1Handler)
-	httpServer := http.NewServer(httpAddress, engine)
+	v1Handler := v1_2.NewHandler(usecasesChallenge, usecasesWisdom)
+	httpHandler := v1_2.ProvideHTTPEngine(v1Handler)
+	httpServer := http.NewServer(httpAddress, httpHandler)
 	app := NewApp(logger, server, httpServer)
 	return app, nil
 }
@@ -77,6 +73,10 @@ func provideChallengeTimeout(cfg config.Config) v1.ChallengeTimeout {
 	return v1.ChallengeTimeout(cfg.ChallengeTimeout)
 }
 
+func provideProofOfWorkGenerator(complexity pow.Complexity) challenge2.ProofOfWorkGenerator {
+	return pow.NewGenerator(complexity)
+}
+
 func provideTCPAddress(cfg config.Config) tcp.Address {
 	return tcp.Address(cfg.TCPAddress)
 }
@@ -88,6 +88,7 @@ func provideHTTPAddr(cfg config.Config) http.Address {
 var Application = wire.NewSet(
 	NewApp,
 
-	provideLogger, config.Set, config2.Set, tcp.NewServer, v1.Set, provideTCPAddress,
-	provideChallengeTimeout, http.NewServer, v1_2.Set, wire.Bind(new(http2.Handler), new(*gin.Engine)), provideHTTPAddr, repository.NewRepository, wire.Bind(new(repositories.Wisdom), new(*repository.Repository)), pow.NewGenerator, wire.Bind(new(challenge.ProofOfWorkGenerator), new(*pow.Generator)), provideChallengeComplexity, challenge.NewUsecase, wire.Bind(new(usecases.Challenge), new(*challenge.Usecase)), wisdom.NewUsecase, wire.Bind(new(usecases.Wisdom), new(*wisdom.Usecase)),
+	provideLogger, config.Set, config2.Set, wisdom.Set, challenge.Set, provideChallengeComplexity,
+	provideChallengeTimeout,
+	provideProofOfWorkGenerator, tcp.NewServer, provideTCPAddress, http.NewServer, provideHTTPAddr,
 )

@@ -7,16 +7,16 @@ import (
 	net "net/http"
 	"time"
 
-	httpV1 "word_of_wisdom/internal/client/internal/api/http/v1"
-	tcpV1 "word_of_wisdom/internal/client/internal/api/tcp/v1"
-	"word_of_wisdom/internal/client/internal/services/solver"
-	"word_of_wisdom/internal/common/config"
-	"word_of_wisdom/internal/common/constants"
-	"word_of_wisdom/pkg/http"
-	"word_of_wisdom/pkg/logger"
-	"word_of_wisdom/pkg/pow"
-	"word_of_wisdom/pkg/shutdown"
-	"word_of_wisdom/pkg/tcp"
+	httpV1 "github.com/ognick/word_of_wisdom/internal/client/internal/api/http/v1"
+	tcpV1 "github.com/ognick/word_of_wisdom/internal/client/internal/api/tcp/v1"
+	"github.com/ognick/word_of_wisdom/internal/client/internal/services/solver"
+	"github.com/ognick/word_of_wisdom/internal/common/config"
+	"github.com/ognick/word_of_wisdom/internal/common/constants"
+	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/pow"
+	"github.com/ognick/word_of_wisdom/pkg/shutdown"
+	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 func Run() {

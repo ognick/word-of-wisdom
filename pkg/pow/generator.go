@@ -2,8 +2,6 @@ package pow
 
 import (
 	"crypto/rand"
-
-	"github.com/google/wire"
 )
 
 type Complexity byte
@@ -27,5 +25,3 @@ func (g *Generator) Generate() ([]byte, error) {
 
 	return challenge, nil
 }
-
-var Set = wire.NewSet(NewGenerator)

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"word_of_wisdom/internal/common/constants"
-	"word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/internal/common/constants"
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 type SolverService interface {

@@ -5,8 +5,12 @@ package app
 
 import (
 	"fmt"
+	"net"
+	nethttp "net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+
 	commonconfig "github.com/ognick/word_of_wisdom/internal/common/config"
 	privateconfig "github.com/ognick/word_of_wisdom/internal/server/internal/config"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge"
@@ -32,43 +36,41 @@ func provideLogger(cfg commonconfig.Config) (logger.Logger, error) {
 	return l, nil
 }
 
-func provideChallengeComplexity(cfg privateconfig.Config) pow.Complexity {
-	return cfg.ChallengeComplexity
-}
-
 func provideChallengeTimeout(cfg commonconfig.Config) wisdomtcpV1.ChallengeTimeout {
 	return wisdomtcpV1.ChallengeTimeout(cfg.ChallengeTimeout)
 }
 
-func provideProofOfWorkGenerator(complexity pow.Complexity) challengeusecase.ProofOfWorkGenerator {
-	return pow.NewGenerator(complexity)
+func provideProofOfWorkGenerator(cfg privateconfig.Config) challengeusecase.ProofOfWorkGenerator {
+	return pow.NewGenerator(cfg.ChallengeComplexity)
 }
 
-func provideTCPAddress(cfg commonconfig.Config) tcp.Address {
-	return tcp.Address(cfg.TCPAddress)
+func provideTCPServer(cfg commonconfig.Config, handler func(conn net.Conn)) *tcp.Server {
+	return tcp.NewServer(cfg.TCPAddress, handler)
 }
 
-func provideHTTPAddr(cfg commonconfig.Config) http.Address {
-	return http.Address(cfg.HTTPAddress)
+func provideHTTPServer(cfg commonconfig.Config, handler nethttp.Handler) *http.Server {
+	return http.NewServer(cfg.HTTPAddress, handler)
+}
+
+func provideHTTPHandler(router *gin.Engine) nethttp.Handler {
+	return router
 }
 
 var Application = wire.NewSet(
 	NewApp,
-
+	commonconfig.NewConfig,
+	privateconfig.NewConfig,
 	provideLogger,
 
-	commonconfig.Set,
-	privateconfig.Set,
+	wisdom.Init,
 
-	wisdom.Set,
-	challenge.Set,
-	provideChallengeComplexity,
+	challenge.Init,
 	provideChallengeTimeout,
 	provideProofOfWorkGenerator,
 
-	tcp.NewServer,
-	provideTCPAddress,
+	provideTCPServer,
 
-	http.NewServer,
-	provideHTTPAddr,
+	provideHTTPServer,
+	initHTTPRouter,
+	provideHTTPHandler,
 )

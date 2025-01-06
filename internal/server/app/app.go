@@ -2,7 +2,11 @@ package app
 
 import (
 	"log"
+	nethttp "net/http"
 
+	"github.com/gin-gonic/gin"
+
+	wisdomhttpv1 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
 	"github.com/ognick/word_of_wisdom/pkg/http"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 	"github.com/ognick/word_of_wisdom/pkg/shutdown"
@@ -21,6 +25,24 @@ func NewApp(log logger.Logger, tcpSrv *tcp.Server, httpServ *http.Server) *App {
 		tcpSrv:   tcpSrv,
 		httpServ: httpServ,
 	}
+}
+
+func initHTTPRouter(
+	wisdomV1 *wisdomhttpv1.Handler,
+) *gin.Engine {
+	router := gin.Default()
+	router.Use(
+		gin.Recovery(),
+	)
+
+	// Init health check
+	router.GET("/health", func(c *gin.Context) {
+		c.String(nethttp.StatusOK, "ok")
+	})
+
+	wisdomV1.Register(router)
+
+	return router
 }
 
 func (app *App) Run() {

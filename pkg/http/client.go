@@ -21,11 +21,11 @@ type Client struct {
 }
 
 func NewClient(
-	addr Address,
+	addr string,
 	method string,
 	handler handler,
 ) *Client {
-	host, port, err := net.SplitHostPort(string(addr))
+	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
 		panic(err)
 	}

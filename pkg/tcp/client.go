@@ -16,11 +16,11 @@ type Client struct {
 }
 
 func NewClient(
-	addr Address,
+	addr string,
 	handler func(conn net.Conn) error,
 ) *Client {
 	return &Client{
-		addr:    string(addr),
+		addr:    addr,
 		handler: handler,
 		log:     logger.NewLogger(),
 	}

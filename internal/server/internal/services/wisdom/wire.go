@@ -19,9 +19,9 @@ func ProvideUsecase(repo repositories.Wisdom) usecases.Wisdom {
 	return usecase.NewUsecase(repo)
 }
 
-var Set = wire.NewSet(
+var Init = wire.NewSet(
 	ProvideRepo,
 	ProvideUsecase,
-	httpv1.Set,
-	tcpv1.Set,
+	tcpv1.Init,
+	httpv1.Init,
 )

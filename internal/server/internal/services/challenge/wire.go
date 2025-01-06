@@ -11,6 +11,6 @@ func ProvideUsecase(pow usecase.ProofOfWorkGenerator) usecases.Challenge {
 	return usecase.NewUsecase(pow)
 }
 
-var Set = wire.NewSet(
+var Init = wire.NewSet(
 	ProvideUsecase,
 )

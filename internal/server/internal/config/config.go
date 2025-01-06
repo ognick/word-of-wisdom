@@ -4,13 +4,10 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v7"
-	"github.com/google/wire"
-
-	"github.com/ognick/word_of_wisdom/pkg/pow"
 )
 
 type Config struct {
-	ChallengeComplexity pow.Complexity `env:"CONF_CHALLENGE_COMPLEXITY" envDefault:"4"`
+	ChallengeComplexity byte `env:"CONF_CHALLENGE_COMPLEXITY" envDefault:"4"`
 }
 
 func NewConfig() (Config, error) {
@@ -22,5 +19,3 @@ func NewConfig() (Config, error) {
 
 	return cfg, nil
 }
-
-var Set = wire.NewSet(NewConfig)

@@ -1,13 +1,7 @@
 package v1
 
-import (
-	"net/http"
+import "github.com/google/wire"
 
-	"github.com/google/wire"
+var Init = wire.NewSet(
+	NewHandler,
 )
-
-func ProvideHTTPEngine(handler *Handler) http.Handler {
-	return handler.Init()
-}
-
-var Set = wire.NewSet(ProofOfWorkLimiter, NewHandler, ProvideHTTPEngine)

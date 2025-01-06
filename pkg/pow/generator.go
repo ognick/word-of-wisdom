@@ -4,15 +4,13 @@ import (
 	"crypto/rand"
 )
 
-type Complexity byte
-
 type Generator struct {
 	*ProofOfWork
 }
 
-func NewGenerator(complexity Complexity) *Generator {
+func NewGenerator(complexity byte) *Generator {
 	return &Generator{
-		ProofOfWork: NewProofOfWork(byte(complexity)),
+		ProofOfWork: NewProofOfWork(complexity),
 	}
 }
 

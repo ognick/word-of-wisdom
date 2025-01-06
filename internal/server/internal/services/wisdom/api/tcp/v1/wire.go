@@ -10,7 +10,7 @@ func ProvideTCPHandle(handler *Handler) func(net.Conn) {
 	return handler.Handle
 }
 
-var Set = wire.NewSet(
+var Init = wire.NewSet(
 	NewHandler,
 	ProvideTCPHandle,
 )

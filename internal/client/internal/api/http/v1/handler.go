@@ -19,11 +19,12 @@ type Handler struct {
 }
 
 func NewHandler(
+	log logger.Logger,
 	solverService SolverService,
 ) *Handler {
 	return &Handler{
+		log:           log,
 		solverService: solverService,
-		log:           logger.NewLogger(),
 	}
 }
 

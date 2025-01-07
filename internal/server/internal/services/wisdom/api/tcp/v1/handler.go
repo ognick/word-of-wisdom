@@ -22,6 +22,7 @@ type Handler struct {
 }
 
 func NewHandler(
+	log logger.Logger,
 	challengeUsecase usecases.Challenge,
 	wisdomUsecase usecases.Wisdom,
 	timeout ChallengeTimeout,
@@ -30,7 +31,7 @@ func NewHandler(
 		challengeUsecase: challengeUsecase,
 		wisdomUsecase:    wisdomUsecase,
 		timeout:          time.Duration(timeout),
-		log:              logger.NewLogger(),
+		log:              log,
 	}
 }
 

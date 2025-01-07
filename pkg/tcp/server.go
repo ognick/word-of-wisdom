@@ -11,6 +11,8 @@ import (
 
 var opError = &net.OpError{}
 
+type Addr string
+
 type Server struct {
 	addr    string
 	handler func(conn net.Conn)
@@ -18,13 +20,14 @@ type Server struct {
 }
 
 func NewServer(
-	addr string,
+	log logger.Logger,
+	addr Addr,
 	handler func(conn net.Conn),
 ) *Server {
 	return &Server{
-		addr:    addr,
+		addr:    string(addr),
 		handler: handler,
-		log:     logger.NewLogger(),
+		log:     log,
 	}
 }
 

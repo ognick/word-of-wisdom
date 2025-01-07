@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hashicorp/golang-lru/v2/expirable"
-
 	"github.com/ognick/word_of_wisdom/internal/common/constants"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
@@ -18,9 +17,8 @@ const (
 	cacheTTL  = 1 * time.Second
 )
 
-func proofOfWorkLimiter(challengeUsecase usecases.Challenge) gin.HandlerFunc {
+func proofOfWorkLimiter(log logger.Logger, challengeUsecase usecases.Challenge) gin.HandlerFunc {
 	cache := expirable.NewLRU[string, []byte](cacheSize, nil, cacheTTL)
-	log := logger.NewLogger()
 
 	generateChallenge := func(c *gin.Context, addr string) {
 		challenge, err := challengeUsecase.GenerateChallenge()

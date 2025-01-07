@@ -7,7 +7,6 @@
 package app
 
 import (
-	"fmt"
 	"github.com/google/wire"
 	"github.com/ognick/word_of_wisdom/internal/common/config"
 	config2 "github.com/ognick/word_of_wisdom/internal/server/internal/config"
@@ -16,12 +15,11 @@ import (
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom"
 	v1_2 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
-	http2 "github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/http"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/logger/zap"
 	"github.com/ognick/word_of_wisdom/pkg/pow"
 	"github.com/ognick/word_of_wisdom/pkg/tcp"
-	"net"
-	"net/http"
 )
 
 // Injectors from init.go:
@@ -31,10 +29,8 @@ func InitializeApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger, err := provideLogger(configConfig)
-	if err != nil {
-		return nil, err
-	}
+	logger := provideLogger(configConfig)
+	addr := provideTCPAddr(configConfig)
 	config3, err := config2.NewConfig()
 	if err != nil {
 		return nil, err
@@ -44,24 +40,21 @@ func InitializeApp() (*App, error) {
 	repositoriesWisdom := wisdom.ProvideRepo()
 	usecasesWisdom := wisdom.ProvideUsecase(repositoriesWisdom)
 	challengeTimeout := provideChallengeTimeout(configConfig)
-	handler := v1.NewHandler(usecasesChallenge, usecasesWisdom, challengeTimeout)
+	handler := v1.NewHandler(logger, usecasesChallenge, usecasesWisdom, challengeTimeout)
 	v := v1.ProvideTCPHandle(handler)
-	server := provideTCPServer(configConfig, v)
-	v1Handler := v1_2.NewHandler(usecasesChallenge, usecasesWisdom)
+	server := tcp.NewServer(logger, addr, v)
+	httpAddr := provideHTTPAddr(configConfig)
+	v1Handler := v1_2.NewHandler(logger, usecasesChallenge, usecasesWisdom)
 	httpHandler := registerHTTPHandlers(v1Handler)
-	httpServer := provideHTTPServer(configConfig, httpHandler)
+	httpServer := http.NewServer(logger, httpAddr, httpHandler)
 	app := NewApp(logger, server, httpServer)
 	return app, nil
 }
 
 // init.go:
 
-func provideLogger(cfg config.Config) (logger.Logger, error) {
-	l := logger.NewLogger()
-	if err := logger.SetLogLevel(cfg.LogLevel); err != nil {
-		return l, fmt.Errorf("failed set log level: %v", err)
-	}
-	return l, nil
+func provideLogger(cfg config.Config) logger.Logger {
+	return zap.NewLogger(cfg.Logger)
 }
 
 func provideChallengeTimeout(cfg config.Config) v1.ChallengeTimeout {
@@ -72,19 +65,17 @@ func provideProofOfWorkGenerator(cfg config2.Config) challenge2.ProofOfWorkGener
 	return pow.NewGenerator(cfg.ChallengeComplexity)
 }
 
-func provideTCPServer(cfg config.Config, handler func(conn net.Conn)) *tcp.Server {
-	return tcp.NewServer(cfg.TCPAddress, handler)
+func provideTCPAddr(cfg config.Config) tcp.Addr {
+	return tcp.Addr(cfg.TCPAddress)
 }
 
-func provideHTTPServer(cfg config.Config, handler http.Handler) *http2.Server {
-	return http2.NewServer(cfg.HTTPAddress, handler)
+func provideHTTPAddr(cfg config.Config) http.Addr {
+	return http.Addr(cfg.HTTPAddress)
 }
 
 var Application = wire.NewSet(
 
-	NewApp, config.NewConfig, provideLogger,
-	provideTCPServer,
-	provideHTTPServer,
+	NewApp, config.NewConfig, provideLogger, tcp.NewServer, provideTCPAddr, http.NewServer, provideHTTPAddr,
 	registerHTTPHandlers, wisdom.Init, challenge.Init, provideChallengeTimeout,
 	provideProofOfWorkGenerator, config2.NewConfig,
 )

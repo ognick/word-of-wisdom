@@ -21,6 +21,7 @@ type Client struct {
 }
 
 func NewClient(
+	log logger.Logger,
 	addr string,
 	method string,
 	handler handler,
@@ -34,11 +35,11 @@ func NewClient(
 	}
 	address := host + ":" + port
 	return &Client{
+		log:     log,
 		addr:    address,
 		method:  method,
 		handler: handler,
 		client:  &http.Client{},
-		log:     logger.NewLogger(),
 	}
 }
 

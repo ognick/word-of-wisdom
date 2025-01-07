@@ -18,17 +18,18 @@ type SolverService interface {
 
 // Handler handles connections and solves tasks.
 type Handler struct {
-	solverService SolverService
 	log           logger.Logger
+	solverService SolverService
 }
 
 // NewHandler creates a new instance of a handler with the given task-solving service.
 func NewHandler(
+	log logger.Logger,
 	solverService SolverService,
 ) *Handler {
 	return &Handler{
+		log:           log,
 		solverService: solverService,
-		log:           logger.NewLogger(),
 	}
 }
 

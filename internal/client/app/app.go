@@ -13,22 +13,19 @@ import (
 	"github.com/ognick/word_of_wisdom/internal/common/config"
 	"github.com/ognick/word_of_wisdom/internal/common/constants"
 	"github.com/ognick/word_of_wisdom/pkg/http"
-	"github.com/ognick/word_of_wisdom/pkg/logger"
+	"github.com/ognick/word_of_wisdom/pkg/logger/zap"
 	"github.com/ognick/word_of_wisdom/pkg/pow"
 	"github.com/ognick/word_of_wisdom/pkg/shutdown"
 	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 func Run() {
-	log := logger.NewLogger()
+
 	cfg, err := config.NewConfig()
 	if err != nil {
-		log.Fatalf("failed to init config: %v", err)
+		panic(fmt.Errorf("failed to init config: %v", err))
 	}
-	if err := logger.SetLogLevel(cfg.LogLevel); err != nil {
-		log.Fatalf("failed to set log level: %v", err)
-	}
-
+	log := zap.NewLogger(cfg.Logger)
 	// Proof of concept solver
 	proofOfWorkSolver := pow.NewSolver()
 
@@ -36,17 +33,18 @@ func Run() {
 	solverService := solver.NewService(proofOfWorkSolver)
 
 	// TCP Handler
-	tcpHandler := tcpV1.NewHandler(solverService)
+	tcpHandler := tcpV1.NewHandler(log, solverService)
 
 	// HTTP Handler
-	httpHandler := httpV1.NewHandler(solverService)
+	httpHandler := httpV1.NewHandler(log, solverService)
 
 	// TCP Client
-	tcpClient := tcp.NewClient(cfg.TCPAddress, tcpHandler.Handle)
+	tcpClient := tcp.NewClient(log, cfg.TCPAddress, tcpHandler.Handle)
 
 	// HTTP Client
 	var httpClient *http.Client
 	httpClient = http.NewClient(
+		log,
 		cfg.HTTPAddress+"/v1/wisdom",
 		"GET",
 		func(ctx context.Context, status int, header net.Header, body []byte) error {

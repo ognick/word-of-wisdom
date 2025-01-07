@@ -7,10 +7,17 @@ import (
 	"github.com/caarlos0/env/v7"
 )
 
+type Logger struct {
+	Development   bool   `env:"DEVELOPMENT" envDefault:"false"`
+	DisableCaller bool   `env:"DISABLE_CALLER" envDefault:"true"`
+	DisableJson   bool   `env:"ENCODING" envDefault:"true"`
+	Level         string `env:"LEVEL" envDefault:"debug"`
+}
+
 type Config struct {
 	TCPAddress       string        `env:"CONF_TCP_ADDRESS" envDefault:":8080"`
 	HTTPAddress      string        `env:"CONF_HTTP_ADDRESS" envDefault:":8888"`
-	LogLevel         string        `env:"CONF_LOG_LEVEL" envDefault:"debug"`
+	Logger           Logger        `env:"CONF_LOGGER"`
 	ChallengeTimeout time.Duration `env:"CONF_TIMEOUT" envDefault:"1s"`
 }
 

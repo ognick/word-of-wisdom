@@ -1,6 +1,3 @@
-//go:build wireinject
-// +build wireinject
-
 package app
 
 import (
@@ -8,16 +5,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+	swaggerfiles "github.com/swaggo/files"
+	ginswagger "github.com/swaggo/gin-swagger"
+
 	commonconfig "github.com/ognick/word_of_wisdom/internal/common/config"
-	"github.com/ognick/word_of_wisdom/internal/server/docs"
+	_ "github.com/ognick/word_of_wisdom/internal/server/docs"
 	wisdomhttpv1 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
 	"github.com/ognick/word_of_wisdom/pkg/http"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title Word of Wisdom API
-// @version 1.0
+// @version 1.0.0
 // @description This is a simple API for getting wisdoms
 // @contact.name Dmitry Aleksandrov
 // @contact.email ogneslav.work@gmail.com
@@ -40,8 +38,7 @@ func registerHTTPHandlers(
 
 	wisdomV1.Register(router)
 
-	docs.SwaggerInfo.BasePath = "/api/v1"
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginswagger.WrapHandler(swaggerfiles.Handler))
 	return router
 }
 
@@ -49,12 +46,8 @@ func provideHTTPAddr(cfg commonconfig.Config) http.Addr {
 	return http.Addr(cfg.HTTPAddress)
 }
 
-func initHttpServer() (*http.Server, error) {
-	wire.Build(
-		Application,
-		http.NewServer,
-		provideHTTPAddr,
-		registerHTTPHandlers,
-	)
-	return nil, nil
-}
+var initHTTPServer = wire.NewSet(
+	http.NewServer,
+	provideHTTPAddr,
+	registerHTTPHandlers,
+)

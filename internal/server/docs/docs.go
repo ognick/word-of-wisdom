@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/": {
+        "/v1/wisdom": {
             "get": {
-                "description": "Middleware to protect endpoints with Proof-of-Work.\nClients must solve a server-provided challenge and submit the solution in the header.",
+                "description": "Get wisdom",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,8 +25,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ProofOfWork"
+                    "V1"
                 ],
+                "summary": "Get wisdom",
                 "parameters": [
                     {
                         "type": "string",
@@ -43,35 +44,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Validation passed successfully."
-                    },
-                    "401": {
-                        "description": "Invalid challenge solution."
-                    },
-                    "500": {
-                        "description": "Failed to generate a challenge."
-                    }
-                }
-            }
-        },
-        "/wisdom": {
-            "get": {
-                "description": "Get wisdom",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Wisdom"
-                ],
-                "summary": "Get wisdom",
-                "responses": {
-                    "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.Wisdom"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {

@@ -7,13 +7,11 @@ definitions:
 info:
   contact: {}
 paths:
-  /v1/:
+  /v1/wisdom:
     get:
       consumes:
       - application/json
-      description: |-
-        Middleware to protect endpoints with Proof-of-Work.
-        Clients must solve a server-provided challenge and submit the solution in the header.
+      description: Get wisdom
       parameters:
       - description: Header containing the generated challenge (provided only on the
           first request).
@@ -29,30 +27,18 @@ paths:
       - application/json
       responses:
         "200":
-          description: Validation passed successfully.
-        "401":
-          description: Invalid challenge solution.
-        "500":
-          description: Failed to generate a challenge.
-      tags:
-      - ProofOfWork
-  /wisdom:
-    get:
-      consumes:
-      - application/json
-      description: Get wisdom
-      produces:
-      - application/json
-      responses:
-        "200":
           description: OK
           schema:
             $ref: '#/definitions/dto.Wisdom'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
         "500":
           description: Internal Server Error
           schema:
             type: string
       summary: Get wisdom
       tags:
-      - Wisdom
+      - V1
 swagger: "2.0"

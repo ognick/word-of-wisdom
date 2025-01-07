@@ -32,12 +32,15 @@ func NewHandler(
 // getWisdom godoc
 // @Summary      Get wisdom
 // @Description  Get wisdom
-// @Tags         Wisdom
+// @Tags         V1
 // @Accept       json
 // @Produce      json
+// @Param X-Challenge header string false "Header containing the generated challenge (provided only on the first request)."
+// @Param X-Solution header string false "Header containing the solution to the challenge for validation (for subsequent requests)."
 // @Success      200  {object}  dto.Wisdom
 // @Failure      500  {string}  http.StatusInternalServerError
-// @Router       /wisdom [get]
+// @Failure      400  {string}  http.StatusBadRequest
+// @Router       /v1/wisdom [get]
 func (h *Handler) getWisdom(c *gin.Context) {
 	response, err := json.Marshal(dto.NewWisdom(h.wisdomUsecase.GetWisdom()))
 	if err != nil {

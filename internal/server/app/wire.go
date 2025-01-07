@@ -1,10 +1,8 @@
-//go:build wireinject
-// +build wireinject
-
 package app
 
 import (
 	"github.com/google/wire"
+
 	commonconfig "github.com/ognick/word_of_wisdom/internal/common/config"
 	internalconfig "github.com/ognick/word_of_wisdom/internal/server/internal/config"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge"
@@ -16,10 +14,6 @@ import (
 	"github.com/ognick/word_of_wisdom/pkg/pow"
 )
 
-func InitializeApp() (*App, error) {
-	wire.Build(Application)
-	return nil, nil
-}
 func provideLogger(cfg commonconfig.Config) logger.Logger {
 	return zap.NewLogger(cfg.Logger)
 }
@@ -43,4 +37,7 @@ var Application = wire.NewSet(
 	provideChallengeTimeout,
 	provideProofOfWorkGenerator,
 	internalconfig.NewConfig,
+	// Servers
+	initHTTPServer,
+	initTCPServer,
 )

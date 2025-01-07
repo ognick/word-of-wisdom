@@ -1,0 +1,59 @@
+name: Go Tests
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22.x
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run tests
+        run: make test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Check out repository
+      - uses: actions/setup-go@v5
+        name: Set up Go
+        with:
+          go-version: 1.22.x
+          cache: false  # managed by golangci-lint
+
+      - uses: golangci/golangci-lint-action@v6
+        name: Install golangci-lint
+        with:
+          version: latest
+          # Hack: Use the official action to download, but not run.
+          # make lint below will handle actually running the linter.
+          args: --help
+
+      - run: make lint
+        name: Lint

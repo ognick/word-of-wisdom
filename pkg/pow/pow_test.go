@@ -28,6 +28,8 @@ func Test_BadSolution(t *testing.T) {
 	generator := NewGenerator(5)
 	challenge, err := generator.Generate()
 	require.NoError(t, err)
+	require.Len(t, challenge, ChallengeLen)
+	require.NotEqual(t, challenge, make([]byte, ChallengeLen))
 
 	ok := generator.Validate(challenge, make([]byte, SolutionLen))
 	require.False(t, ok)

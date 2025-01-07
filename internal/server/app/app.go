@@ -2,56 +2,42 @@ package app
 
 import (
 	"log"
-	nethttp "net/http"
 
-	"github.com/gin-gonic/gin"
-
-	wisdomhttpv1 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
-	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/config"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 	"github.com/ognick/word_of_wisdom/pkg/shutdown"
-	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 type App struct {
-	log      logger.Logger
-	tcpSrv   *tcp.Server
-	httpServ *http.Server
+	log logger.Logger
+	cfg config.Config
 }
 
-func NewApp(log logger.Logger, tcpSrv *tcp.Server, httpServ *http.Server) *App {
+func NewApp(log logger.Logger, cfg config.Config) *App {
 	return &App{
-		log:      log,
-		tcpSrv:   tcpSrv,
-		httpServ: httpServ,
+		log: log,
+		cfg: cfg,
 	}
 }
 
-func registerHTTPHandlers(
-	wisdomV1 *wisdomhttpv1.Handler,
-) nethttp.Handler {
-	router := gin.Default()
-	router.Use(
-		gin.Recovery(),
-	)
-
-	// Init health check
-	router.GET("/health", func(c *gin.Context) {
-		c.String(nethttp.StatusOK, "ok")
-	})
-
-	wisdomV1.Register(router)
-
-	return router
-}
-
 func (app *App) Run() {
+	tcpSrv, err := initTCPServer()
+	if err != nil {
+		app.log.Fatalf("failed to initialize TCP server: %v", err)
+	}
+
+	httpSrv, err := initHttpServer()
+	if err != nil {
+		app.log.Fatalf("failed to initialize HTTP server: %v", err)
+	}
+
 	runner, gracefulCtx := shutdown.CreateRunnerWithGracefulContext()
 	runner.Go(func() error {
-		return app.tcpSrv.Run(gracefulCtx)
+		return tcpSrv.Run(gracefulCtx)
 	})
+
 	runner.Go(func() error {
-		return app.httpServ.Run(gracefulCtx)
+		return httpSrv.Run(gracefulCtx)
 	})
 
 	app.log.Infof("Server started")

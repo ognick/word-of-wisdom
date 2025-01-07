@@ -1,0 +1,14 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    email: ogneslav.work@gmail.com
+    name: Dmitry Aleksandrov
+  description: This is a simple API for getting wisdoms
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Word of Wisdom API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

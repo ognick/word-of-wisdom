@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hashicorp/golang-lru/v2/expirable"
+
 	"github.com/ognick/word_of_wisdom/internal/common/constants"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
@@ -17,6 +18,18 @@ const (
 	cacheTTL  = 1 * time.Second
 )
 
+// proofOfWorkLimiter limits access to an endpoint using the Proof-of-Work mechanism.
+// @Description Middleware to protect endpoints with Proof-of-Work.
+// @Description Clients must solve a server-provided challenge and submit the solution in the header.
+// @Tags ProofOfWork
+// @Accept json
+// @Produce json
+// @Param X-Challenge header string false "Header containing the generated challenge (provided only on the first request)."
+// @Param X-Solution header string false "Header containing the solution to the challenge for validation (for subsequent requests)."
+// @Success 200 "Validation passed successfully."
+// @Failure 401 "Invalid challenge solution."
+// @Failure 500 "Failed to generate a challenge."
+// @Router /v1/ [get]
 func proofOfWorkLimiter(log logger.Logger, challengeUsecase usecases.Challenge) gin.HandlerFunc {
 	cache := expirable.NewLRU[string, []byte](cacheSize, nil, cacheTTL)
 

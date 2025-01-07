@@ -1,0 +1,58 @@
+definitions:
+  dto.Wisdom:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Middleware to protect endpoints with Proof-of-Work.
+        Clients must solve a server-provided challenge and submit the solution in the header.
+      parameters:
+      - description: Header containing the generated challenge (provided only on the
+          first request).
+        in: header
+        name: X-Challenge
+        type: string
+      - description: Header containing the solution to the challenge for validation
+          (for subsequent requests).
+        in: header
+        name: X-Solution
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Validation passed successfully.
+        "401":
+          description: Invalid challenge solution.
+        "500":
+          description: Failed to generate a challenge.
+      tags:
+      - ProofOfWork
+  /wisdom:
+    get:
+      consumes:
+      - application/json
+      description: Get wisdom
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Wisdom'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get wisdom
+      tags:
+      - Wisdom
+swagger: "2.0"

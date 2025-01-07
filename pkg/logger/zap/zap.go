@@ -3,9 +3,10 @@ package zap
 import (
 	"os"
 
-	"github.com/ognick/word_of_wisdom/internal/common/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/ognick/word_of_wisdom/internal/common/config"
 )
 
 // ZapLogger is a logger implementation using zap

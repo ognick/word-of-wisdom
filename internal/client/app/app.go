@@ -20,7 +20,6 @@ import (
 )
 
 func Run() {
-
 	cfg, err := config.NewConfig()
 	if err != nil {
 		panic(fmt.Errorf("failed to init config: %v", err))

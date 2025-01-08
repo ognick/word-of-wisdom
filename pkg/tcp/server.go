@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/ognick/word_of_wisdom/pkg/lifecycle"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
@@ -20,18 +21,21 @@ type Server struct {
 }
 
 func NewServer(
+	lc lifecycle.Lifecycle,
 	log logger.Logger,
 	addr Addr,
 	handler func(conn net.Conn),
 ) *Server {
-	return &Server{
+	s := &Server{
 		addr:    string(addr),
 		handler: handler,
 		log:     log,
 	}
+	lc.Register(s)
+	return s
 }
 
-func (srv *Server) Run(ctx context.Context) error {
+func (srv *Server) Run(ctx context.Context, ready chan struct{}) error {
 	listener, err := net.Listen("tcp", srv.addr)
 	if err != nil {
 		return fmt.Errorf("failed to start: %w", err)
@@ -44,6 +48,7 @@ func (srv *Server) Run(ctx context.Context) error {
 		}
 	}()
 
+	close(ready)
 	srv.log.Infof("TCP server was starded on %v", listener.Addr())
 
 	connections := make(chan net.Conn)

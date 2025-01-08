@@ -1,7 +1,9 @@
 package zap
 
 import (
+	"errors"
 	"os"
+	"syscall"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -45,7 +47,7 @@ func (l *ZapLogger) getLoggerLevel() zapcore.Level {
 func (l *ZapLogger) initLogger() {
 	logLevel := l.getLoggerLevel()
 
-	logWriter := zapcore.AddSync(os.Stderr)
+	logWriter := zapcore.AddSync(os.Stdout)
 
 	var encoderCfg zapcore.EncoderConfig
 	if l.cfg.Development {
@@ -79,7 +81,7 @@ func (l *ZapLogger) initLogger() {
 	logger := zap.New(core, callerArgs...)
 
 	l.sugarLogger = logger.Sugar()
-	if err := l.sugarLogger.Sync(); err != nil {
+	if err := l.sugarLogger.Sync(); err != nil && !errors.Is(err, syscall.ENOTTY) {
 		l.sugarLogger.Error(err)
 	}
 }

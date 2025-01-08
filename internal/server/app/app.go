@@ -4,45 +4,37 @@ import (
 	"log"
 
 	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/lifecycle"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 	"github.com/ognick/word_of_wisdom/pkg/shutdown"
 	"github.com/ognick/word_of_wisdom/pkg/tcp"
 )
 
 type App struct {
-	log        logger.Logger
-	tcpServer  *tcp.Server
-	httpServer *http.Server
+	log logger.Logger
+	lc  lifecycle.Lifecycle
 }
 
 func NewApp(
 	log logger.Logger,
-	tcpServer *tcp.Server,
-	httpServer *http.Server,
+	lc lifecycle.Lifecycle,
+	// side effects for creation components via wire
+	_ *http.Server,
+	_ *tcp.Server,
 ) *App {
 	return &App{
-		log:        log,
-		tcpServer:  tcpServer,
-		httpServer: httpServer,
+		log: log,
+		lc:  lc,
 	}
 }
 
 func (app *App) Run() {
 	runner, gracefulCtx := shutdown.CreateRunnerWithGracefulContext()
-	runner.Go(func() error {
-		return app.tcpServer.Run(gracefulCtx)
-	})
-
-	runner.Go(func() error {
-		return app.httpServer.Run(gracefulCtx)
-	})
-
-	app.log.Infof("Server started")
-
+	app.lc.RunAllComponents(runner, gracefulCtx)
+	app.log.Infof("Application started")
 	// Awaiting graceful shutdown
 	if err := runner.Wait(); err != nil {
 		log.Fatalf("%v", err)
 	}
-
-	app.log.Infof("Server gracefully finished")
+	app.log.Infof("Application gracefully finished")
 }

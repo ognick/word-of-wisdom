@@ -9,6 +9,7 @@ import (
 	challengeusecase "github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge/usecase"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom"
 	wisdomtcpV1 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
+	"github.com/ognick/word_of_wisdom/pkg/lifecycle"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 	"github.com/ognick/word_of_wisdom/pkg/logger/zap"
 	"github.com/ognick/word_of_wisdom/pkg/pow"
@@ -29,6 +30,7 @@ func provideProofOfWorkGenerator(cfg internalconfig.Config) challengeusecase.Pro
 var Application = wire.NewSet(
 	// Application
 	NewApp,
+	lifecycle.NewLifecycle,
 	commonconfig.NewConfig,
 	provideLogger,
 	// Domain

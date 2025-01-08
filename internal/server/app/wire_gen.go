@@ -11,10 +11,15 @@ import (
 	config2 "github.com/ognick/word_of_wisdom/internal/server/internal/config"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/challenge"
 	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom"
-	v1_2 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
-	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1"
+	v1_2 "github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/tcp/v1"
 	"github.com/ognick/word_of_wisdom/pkg/http"
+	"github.com/ognick/word_of_wisdom/pkg/lifecycle"
 	"github.com/ognick/word_of_wisdom/pkg/tcp"
+)
+
+import (
+	_ "github.com/ognick/word_of_wisdom/internal/server/docs"
 )
 
 // Injectors from inject_app.go:
@@ -25,7 +30,8 @@ func InitializeApp() (*App, error) {
 		return nil, err
 	}
 	logger := provideLogger(configConfig)
-	addr := provideTCPAddr(configConfig)
+	lifecycleLifecycle := lifecycle.NewLifecycle()
+	addr := provideHTTPAddr(configConfig)
 	config3, err := config2.NewConfig()
 	if err != nil {
 		return nil, err
@@ -34,14 +40,14 @@ func InitializeApp() (*App, error) {
 	usecasesChallenge := challenge.ProvideUsecase(proofOfWorkGenerator)
 	repositoriesWisdom := wisdom.ProvideRepo()
 	usecasesWisdom := wisdom.ProvideUsecase(repositoriesWisdom)
+	handler := v1.NewHandler(logger, usecasesChallenge, usecasesWisdom)
+	httpHandler := registerHTTPHandlers(handler)
+	server := http.NewServer(lifecycleLifecycle, logger, addr, httpHandler)
+	tcpAddr := provideTCPAddr(configConfig)
 	challengeTimeout := provideChallengeTimeout(configConfig)
-	handler := v1.NewHandler(logger, usecasesChallenge, usecasesWisdom, challengeTimeout)
-	v := v1.ProvideTCPHandle(handler)
-	server := tcp.NewServer(logger, addr, v)
-	httpAddr := provideHTTPAddr(configConfig)
-	v1Handler := v1_2.NewHandler(logger, usecasesChallenge, usecasesWisdom)
-	httpHandler := registerHTTPHandlers(v1Handler)
-	httpServer := http.NewServer(logger, httpAddr, httpHandler)
-	app := NewApp(logger, server, httpServer)
+	v1Handler := v1_2.NewHandler(logger, usecasesChallenge, usecasesWisdom, challengeTimeout)
+	v := v1_2.ProvideTCPHandle(v1Handler)
+	tcpServer := tcp.NewServer(lifecycleLifecycle, logger, tcpAddr, v)
+	app := NewApp(logger, lifecycleLifecycle, server, tcpServer)
 	return app, nil
 }

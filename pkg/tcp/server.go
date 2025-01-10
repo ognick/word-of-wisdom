@@ -26,13 +26,13 @@ func NewServer(
 	addr Addr,
 	handler func(conn net.Conn),
 ) *Server {
-	s := &Server{
-		addr:    string(addr),
-		handler: handler,
-		log:     log,
-	}
-	lc.Register(s)
-	return s
+	return lifecycle.RegisterComponent(lc,
+		&Server{
+			addr:    string(addr),
+			handler: handler,
+			log:     log,
+		})
+
 }
 
 func (srv *Server) Run(ctx context.Context, ready chan struct{}) error {

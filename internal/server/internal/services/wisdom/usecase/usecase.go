@@ -2,14 +2,17 @@ package wisdom
 
 import (
 	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/models"
-	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/repositories"
 )
 
-type Usecase struct {
-	wisdomRepo repositories.Wisdom
+type Repo interface {
+	GetWisdom() models.Wisdom
 }
 
-func NewUsecase(wisdomRepo repositories.Wisdom) *Usecase {
+type Usecase struct {
+	wisdomRepo Repo
+}
+
+func NewUsecase(wisdomRepo Repo) *Usecase {
 	return &Usecase{wisdomRepo: wisdomRepo}
 }
 

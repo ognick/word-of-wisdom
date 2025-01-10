@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/ognick/word_of_wisdom/internal/server/internal/domain/models"
+import (
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/models"
+)
 
 type Wisdom struct {
 	Message string `json:"message"`

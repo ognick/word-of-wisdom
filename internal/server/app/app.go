@@ -15,12 +15,16 @@ type App struct {
 	lc  lifecycle.Lifecycle
 }
 
+type Modules struct {
+	httpServer *http.Server
+	tcpServer  *tcp.Server
+}
+
 func NewApp(
 	log logger.Logger,
 	lc lifecycle.Lifecycle,
 	// side effects for creation components via wire
-	_ *http.Server,
-	_ *tcp.Server,
+	_ Modules,
 ) *App {
 	return &App{
 		log: log,

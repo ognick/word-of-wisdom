@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/golang-lru/v2/expirable"
 
 	"github.com/ognick/word_of_wisdom/internal/common/constants"
-	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/interfaces/usecases"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 

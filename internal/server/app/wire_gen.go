@@ -38,8 +38,8 @@ func InitializeApp() (*App, error) {
 	}
 	proofOfWorkGenerator := provideProofOfWorkGenerator(config3)
 	usecasesChallenge := challenge.ProvideUsecase(proofOfWorkGenerator)
-	repositoriesWisdom := wisdom.ProvideRepo()
-	usecasesWisdom := wisdom.ProvideUsecase(repositoriesWisdom)
+	repo := wisdom.ProvideRepo()
+	usecasesWisdom := wisdom.ProvideUsecase(repo)
 	handler := v1.NewHandler(logger, usecasesChallenge, usecasesWisdom)
 	httpHandler := registerHTTPHandlers(handler)
 	server := http.NewServer(lifecycleLifecycle, logger, addr, httpHandler)
@@ -48,6 +48,10 @@ func InitializeApp() (*App, error) {
 	v1Handler := v1_2.NewHandler(logger, usecasesChallenge, usecasesWisdom, challengeTimeout)
 	v := v1_2.ProvideTCPHandle(v1Handler)
 	tcpServer := tcp.NewServer(lifecycleLifecycle, logger, tcpAddr, v)
-	app := NewApp(logger, lifecycleLifecycle, server, tcpServer)
+	modules := Modules{
+		httpServer: server,
+		tcpServer:  tcpServer,
+	}
+	app := NewApp(logger, lifecycleLifecycle, modules)
 	return app, nil
 }

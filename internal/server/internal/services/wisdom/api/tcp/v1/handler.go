@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/types/usecases"
+	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/interfaces/usecases"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 

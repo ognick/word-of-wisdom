@@ -31,6 +31,11 @@ func NewLifecycle() Lifecycle {
 	return &lifecycle{}
 }
 
+func RegisterComponent[T Component](lc Lifecycle, component T) T {
+	lc.Register(component)
+	return component
+}
+
 func (lc *lifecycle) Register(component Component) {
 	lc.components = append(lc.components, component)
 }

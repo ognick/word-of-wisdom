@@ -39,7 +39,8 @@ var Application = wire.NewSet(
 	provideChallengeTimeout,
 	provideProofOfWorkGenerator,
 	internalconfig.NewConfig,
-	// Servers
+	// Modules
+	wire.Struct(new(Modules), "*"),
 	initHTTPServer,
 	initTCPServer,
 )

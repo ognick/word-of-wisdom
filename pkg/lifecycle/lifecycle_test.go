@@ -23,14 +23,13 @@ func NewBaseComponent(
 	startOutput chan int,
 	stopOutput chan int,
 ) *TestComponent {
-	tc := &TestComponent{
-		id:          id,
-		startOutput: startOutput,
-		stopOutput:  stopOutput,
-		close:       make(chan error),
-	}
-	lc.Register(tc)
-	return tc
+	return RegisterComponent(lc,
+		&TestComponent{
+			id:          id,
+			startOutput: startOutput,
+			stopOutput:  stopOutput,
+			close:       make(chan error),
+		})
 }
 
 func (c *TestComponent) Close(err error) {

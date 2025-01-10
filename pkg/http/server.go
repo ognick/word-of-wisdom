@@ -20,15 +20,14 @@ type Server struct {
 }
 
 func NewServer(lc lifecycle.Lifecycle, log logger.Logger, addr Addr, handler http.Handler) *Server {
-	s := &Server{
-		log: log,
-		srv: &http.Server{
-			Addr:    string(addr),
-			Handler: handler,
-		},
-	}
-	lc.Register(s)
-	return s
+	return lifecycle.RegisterComponent(lc,
+		&Server{
+			log: log,
+			srv: &http.Server{
+				Addr:    string(addr),
+				Handler: handler,
+			},
+		})
 }
 
 func (s *Server) waitForReady(ctx context.Context) bool {

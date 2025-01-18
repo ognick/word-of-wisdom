@@ -30,22 +30,22 @@ func NewServer(lc lifecycle.Lifecycle, log logger.Logger, addr Addr, handler htt
 		})
 }
 
-func (s *Server) waitForReady(ctx context.Context) bool {
+func (s *Server) waitForReady(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return false
+			return ctx.Err()
 		case <-time.After(1 * time.Millisecond):
 			conn, err := net.Dial("tcp", s.srv.Addr)
-			if err == nil {
-				_ = conn.Close()
-				return true
+			if err != nil {
+				return err
 			}
+			return conn.Close()
 		}
 	}
 }
 
-func (s *Server) Run(ctx context.Context, ready chan struct{}) error {
+func (s *Server) Run(ctx context.Context, readinessProbe chan error) error {
 	done := make(chan error)
 	go func() {
 		if err := s.srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -54,10 +54,13 @@ func (s *Server) Run(ctx context.Context, ready chan struct{}) error {
 		close(done)
 	}()
 
-	if s.waitForReady(ctx) {
-		s.log.Infof("HTTP server was started on %s", s.srv.Addr)
-		close(ready)
-	}
+	go func() {
+		err := s.waitForReady(ctx)
+		if err == nil {
+			s.log.Infof("HTTP server was started on %s", s.srv.Addr)
+		}
+		readinessProbe <- err
+	}()
 
 	select {
 	case err := <-done:

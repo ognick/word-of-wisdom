@@ -35,7 +35,7 @@ func NewServer(
 
 }
 
-func (srv *Server) Run(ctx context.Context, ready chan struct{}) error {
+func (srv *Server) Run(ctx context.Context, readinessProbe chan error) error {
 	listener, err := net.Listen("tcp", srv.addr)
 	if err != nil {
 		return fmt.Errorf("failed to start: %w", err)
@@ -48,7 +48,7 @@ func (srv *Server) Run(ctx context.Context, ready chan struct{}) error {
 		}
 	}()
 
-	close(ready)
+	close(readinessProbe)
 	srv.log.Infof("TCP server was starded on %v", listener.Addr())
 
 	connections := make(chan net.Conn)

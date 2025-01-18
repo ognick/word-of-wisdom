@@ -15,7 +15,8 @@ type App struct {
 	lc  lifecycle.Lifecycle
 }
 
-type Modules struct {
+// All modules that need to be created and their Run method called.
+type runnableModules struct {
 	httpServer *http.Server
 	tcpServer  *tcp.Server
 }
@@ -24,7 +25,7 @@ func NewApp(
 	log logger.Logger,
 	lc lifecycle.Lifecycle,
 	// side effects for creation components via wire
-	_ Modules,
+	_ runnableModules,
 ) *App {
 	return &App{
 		log: log,

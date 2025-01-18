@@ -30,7 +30,7 @@ func InitializeApp() (*App, error) {
 		return nil, err
 	}
 	logger := provideLogger(configConfig)
-	lifecycleLifecycle := lifecycle.NewLifecycle()
+	lifecycleLifecycle := lifecycle.NewLifecycle(logger)
 	addr := provideHTTPAddr(configConfig)
 	config3, err := config2.NewConfig()
 	if err != nil {
@@ -48,10 +48,10 @@ func InitializeApp() (*App, error) {
 	v1Handler := v1_2.NewHandler(logger, usecasesChallenge, usecasesWisdom, challengeTimeout)
 	v := v1_2.ProvideTCPHandle(v1Handler)
 	tcpServer := tcp.NewServer(lifecycleLifecycle, logger, tcpAddr, v)
-	modules := Modules{
+	appRunnableModules := runnableModules{
 		httpServer: server,
 		tcpServer:  tcpServer,
 	}
-	app := NewApp(logger, lifecycleLifecycle, modules)
+	app := NewApp(logger, lifecycleLifecycle, appRunnableModules)
 	return app, nil
 }

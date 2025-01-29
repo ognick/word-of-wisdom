@@ -58,3 +58,22 @@ jobs:
 
       - run: make lint
         name: Lint
+
+  arch-go:
+    name: Run Arch-Go
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Check out repository
+      - uses: actions/setup-go@v5
+        name: Set up Go
+        with:
+          go-version: 1.22.x
+          cache: false  # managed by golangci-lint
+
+      - name: Install Arch-Go
+        run: go install github.com/threepipes/arch-go/cmd/arch-go@latest
+
+      - name: Run Arch-Go
+        run: arch-go

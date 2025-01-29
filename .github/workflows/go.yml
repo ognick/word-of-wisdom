@@ -73,7 +73,7 @@ jobs:
           cache: false  # managed by golangci-lint
 
       - name: Install Arch-Go
-        run: go install github.com/threepipes/arch-go/cmd/arch-go@latest
+        run: go install github.com/arch-go/arch-go@latest
 
       - name: Run Arch-Go
-        run: arch-go
+        run: arch-go -v

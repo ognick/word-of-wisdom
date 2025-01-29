@@ -60,7 +60,7 @@ jobs:
         name: Lint
 
   arch-go:
-    name: Run Arch-Go
+    name: Arch-Go
     runs-on: ubuntu-latest
 
     steps:

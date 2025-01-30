@@ -1,30 +1,62 @@
-# Word of Wisdom TCP Server with Proof of Work
-## Overview
-The "Word of Wisdom" is a TCP server that provides inspirational quotes to clients. To protect the server from Distributed Denial of Service (DDoS) attacks, a Proof of Work (PoW) mechanism is implemented.
+# Word of Wisdom
 
-## Proof of Work Protocol
-The server and client interact using the following "challenge-response" protocol:
+## Description
 
-1. The client sends a "request service" message to the server.
-2. The server generates a "challenge" for the client to solve.
-3. The server sends the "challenge" to the client.
-4. The client solves the "challenge".
-5. The client sends the response solution to the server.
-6. The server verifies the "solution" provided by the client.
-7. If the solution is correct, the server grants access to the client and provides the requested service.
+The **Word of Wisdom** project provides clients with inspiring quotes through TCP and HTTP servers, protected by a Proof of Work (PoW) mechanism to prevent DDoS attacks.  It utilizes the crypto/argon2 package to generate and verify the "challenges".
 
-The Proof of Work mechanism requires the client to perform a computationally expensive task (solving the "challenge") before the server grants access to the service. This helps to mitigate DDoS attacks by making it difficult for bots to overwhelm the server with requests.
-Learn More [here](https://en.wikipedia.org/wiki/Proof_of_work)
+## Project Architecture
 
-## Implementation
+- **Clean Architecture**: A clear separation of layers: domain, application, and infrastructure.
+- **Domain-Driven Design (DDD)**: Focus on modeling domain entities and business logic.
 
-The server is implemented using the Go programming language. It utilizes the `crypto/argon2` package to generate and verify the "challenges". 
+## Monorepository Structure
 
-**Argon2** was chosen for its strong resistance to hardware-based attacks, such as those using ASICs or GPUs, and its ability to adapt the computational complexity to the server's needs.
+- **arch/**: Architecture-related documentation and diagrams.
+- **cmd/**: Entry point for applications.
+- **deploy/**: Deployment-related configurations and scripts.
+- **internal/**: Internal packages not intended for external use.
+  - **common/**: Common utilities shared across the project.
+    - **config/**: Shared configuration utilities.
+    - **constants/**: Global constants.
+  - **server/**
+    - **app/**: Core application logic.
+        - **docs/**: Documentation related to the server application.
+    - **internal/**: Internal utilities for the server.
+        - **config/**: Configuration handling.
+        - **domain/**: Business logic layer.
+            - **models/**: Data models.
+            - **interfaces/**: Interfaces for dependencies.
+                - **usecases/**: Use case interfaces.
+        - **services/**: Service layer implementation.
+            - **wisdom/**: Wisdom-related services.
+                - **repository/**: Data persistence layer.
+                - **api/**: API integrations.
+                    - **tcp/**: TCP-based API.
+                        - **v1/**: Version 1.
+                    - **http/**: HTTP-based API.
+                        - **v1/**: Version 1.
+                            - **dto/**: Data transfer objects.
+                - **usecase/**: Wisdom-related use case implementations.
+- **pkg/**: Shared reusable packages.
+  - **pow/**: Proof-of-work related utilities.
+  - **logger/**: Logging utilities.
+  - **shutdown/**: Graceful shutdown handling.
+  - **lifecycle/**: Application lifecycle management.
 
-The client implementation is also provided in Go, demonstrating the interaction with the server using the "challenge-response" protocol.
 
-## Usage
+## Technologies and Approaches
+
+### Core Technologies
+- **Programming Language**: Go
+- **Networking Protocols**: TCP and HTTP
+- **Security**: Proof of Work (PoW) for DDoS attack prevention
+- **Containerization**: Docker and Docker Compose for environment management
+- **CI/CD**: GitHub Actions for automated build and deployment processes
+- **Testing**: Unit tests and static code analysis using golangci-lint
+- **Dependency Management**: Wire for automatic dependency injection
+- **Architecture Analysis Tools**: arch-go for architecture validation and dependency analysis
+
+## How to Run
 
 Run test and benchmarks:
 ```

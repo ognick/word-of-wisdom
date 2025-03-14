@@ -7,18 +7,23 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"github.com/ognick/word_of_wisdom/internal/common/config"
 )
+
+type Config struct {
+	Development   bool
+	DisableCaller bool
+	DisableJson   bool
+	Level         string
+}
 
 // ZapLogger is a logger implementation using zap
 type ZapLogger struct {
-	cfg         config.Logger
+	cfg         Config
 	sugarLogger *zap.SugaredLogger
 }
 
 // NewLogger creates a new logger instance
-func NewLogger(cfg config.Logger) *ZapLogger {
+func NewLogger(cfg Config) *ZapLogger {
 	logger := &ZapLogger{cfg: cfg}
 	logger.initLogger()
 	return logger

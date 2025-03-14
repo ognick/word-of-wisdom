@@ -16,7 +16,12 @@ import (
 )
 
 func provideLogger(cfg commonconfig.Config) logger.Logger {
-	return zap.NewLogger(cfg.Logger)
+	return zap.NewLogger(zap.Config{
+		Level:         cfg.Logger.Level,
+		Development:   cfg.Logger.Development,
+		DisableCaller: cfg.Logger.DisableCaller,
+		DisableJson:   cfg.Logger.DisableJson,
+	})
 }
 
 func provideChallengeTimeout(cfg commonconfig.Config) wisdomtcpV1.ChallengeTimeout {

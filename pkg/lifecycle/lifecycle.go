@@ -41,7 +41,6 @@ func (lc *lifecycle) RunAllComponents(
 	runner shutdown.Runner,
 	gracefulCtx context.Context,
 ) {
-
 	cancelCtxFuncs := make([]context.CancelFunc, 0, len(lc.components))
 	cancelPreviousCtx := func(i int) {
 		if i > 0 {

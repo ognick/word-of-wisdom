@@ -32,7 +32,6 @@ func NewServer(
 			handler: handler,
 			log:     log,
 		})
-
 }
 
 func (srv *Server) Run(ctx context.Context, readinessProbe chan error) error {

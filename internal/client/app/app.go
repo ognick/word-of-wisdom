@@ -24,7 +24,12 @@ func Run() {
 	if err != nil {
 		panic(fmt.Errorf("failed to init config: %v", err))
 	}
-	log := zap.NewLogger(cfg.Logger)
+	log := zap.NewLogger(zap.Config{
+		Level:         cfg.Logger.Level,
+		Development:   cfg.Logger.Development,
+		DisableCaller: cfg.Logger.DisableCaller,
+		DisableJson:   cfg.Logger.DisableJson,
+	})
 	// Proof of concept solver
 	proofOfWorkSolver := pow.NewSolver()
 

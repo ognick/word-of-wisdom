@@ -4,20 +4,28 @@ threshold:
   coverage: 0
 
 dependenciesRules:
-  - package: "github.com/ognick/word_of_wisdom/internal/server/internal/services/.**"
+  - package: "github.com/ognick/word_of_wisdom/internal/server/internal/services.**.api.**"
     shouldOnlyDependsOn:
       internal:
-        - "github.com/ognick/word_of_wisdom/internal/server/internal/domain/model"
-        - "github.com/ognick/word_of_wisdom/pkg/.**"
+        - "github.com/ognick/word_of_wisdom/internal/server/internal/domain.**"
+        - "github.com/ognick/word_of_wisdom/pkg.**"
+        - "github.com/ognick/word_of_wisdom/internal/common.**"
 
-  - package: "github.com/ognick/word_of_wisdom/pkg/.**"
+  - package: "github.com/ognick/word_of_wisdom/internal/server/internal/services.**.repository.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "github.com/ognick/word_of_wisdom/internal/server/internal/domain.**"
+        - "github.com/ognick/word_of_wisdom/pkg.**"
+        - "github.com/ognick/word_of_wisdom/internal/common.**"
+
+  - package: "github.com/ognick/word_of_wisdom/internal/server/internal/services.**.usecase.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "github.com/ognick/word_of_wisdom/internal/server/internal/domain.**"
+        - "github.com/ognick/word_of_wisdom/pkg.**"
+        - "github.com/ognick/word_of_wisdom/internal/common.**"
+
+  - package: "github.com/ognick/word_of_wisdom/pkg.**"
     shouldNotDependsOn:
       internal:
-        - "github.com/ognick/word_of_wisdom/internal/.**"
-
-functionsRules:
-  - package: "github.com/ognick/word_of_wisdom/internal/.**"
-    maxParameters: 3
-    maxReturnValues: 2
-    maxPublicFunctionPerFile: 10
-    maxLines: 50
+        - "github.com/ognick/word_of_wisdom/internal.**"

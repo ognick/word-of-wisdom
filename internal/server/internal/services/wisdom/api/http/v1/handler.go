@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ognick/word_of_wisdom/internal/server/internal/domain/interfaces/usecases"
-	"github.com/ognick/word_of_wisdom/internal/server/internal/services/wisdom/api/http/v1/dto"
 	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
@@ -42,7 +41,7 @@ func NewHandler(
 // @Failure      400  {string}  http.StatusBadRequest
 // @Router       /v1/wisdom [get]
 func (h *Handler) getWisdom(c *gin.Context) {
-	response, err := json.Marshal(dto.NewWisdom(h.wisdomUsecase.GetWisdom()))
+	response, err := json.Marshal(NewWisdom(h.wisdomUsecase.GetWisdom()))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "failed to marshal response")
 		return

@@ -5,9 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ognick/word_of_wisdom/pkg/logger"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/ognick/word_of_wisdom/pkg/logger"
 )
 
 type TestComponent struct {
